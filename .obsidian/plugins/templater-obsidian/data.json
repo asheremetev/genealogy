@@ -1,0 +1,58 @@
+{
+  "command_timeout": 5,
+  "templates_folder": "_Templates",
+  "templates_pairs": [
+    [
+      "",
+      ""
+    ]
+  ],
+  "trigger_on_file_creation": true,
+  "auto_jump_to_cursor": false,
+  "enable_system_commands": false,
+  "shell_path": "",
+  "user_scripts_folder": "",
+  "enable_folder_templates": true,
+  "folder_templates": [
+    {
+      "folder": "People",
+      "template": "_Templates/Person.md"
+    },
+    {
+      "folder": "Families",
+      "template": "_Templates/Family.md"
+    },
+    {
+      "folder": "Places",
+      "template": "_Templates/Place.md"
+    },
+    {
+      "folder": "Sources",
+      "template": "_Templates/Source.md"
+    },
+    {
+      "folder": "Documents",
+      "template": "_Templates/Document.md"
+    },
+    {
+      "folder": "Stories",
+      "template": "_Templates/Story.md"
+    }
+  ],
+  "enable_file_templates": false,
+  "file_templates": [
+    {
+      "regex": ".*",
+      "template": ""
+    }
+  ],
+  "syntax_highlighting": true,
+  "syntax_highlighting_mobile": false,
+  "enabled_templates_hotkeys": [
+    ""
+  ],
+  "startup_templates": [
+    ""
+  ],
+  "intellisense_render": 1
+}

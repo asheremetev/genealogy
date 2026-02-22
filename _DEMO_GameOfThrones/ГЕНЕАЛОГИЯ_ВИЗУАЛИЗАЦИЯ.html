@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Игра Престолов — Генеалогический Атлас</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --gold-dim: #7a6030;
+    --blood: #8b1a1a;
+    --blood-bright: #c0392b;
+    --iron: #2a2a35;
+    --iron-mid: #1a1a25;
+    --iron-dark: #0d0d15;
+    --stark: #6b9ecf;
+    --lannister: #d4af37;
+    --targaryen: #c0392b;
+    --baratheon: #2c3e50;
+    --tyrell: #27ae60;
+    --other: #8e44ad;
+    --text: #e8dfc0;
+    --text-dim: #a09070;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--iron-dark);
+    color: var(--text);
+    font-family: 'EB Garamond', serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(180deg, #000 0%, transparent 100%);
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .crown-divider {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; margin-bottom: 16px;
+  }
+  .crown-divider::before, .crown-divider::after {
+    content: '';
+    flex: 1; max-width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .crown-icon { font-size: 28px; filter: drop-shadow(0 0 12px rgba(201,168,76,0.8)); }
+  .main-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 700;
+    background: linear-gradient(135deg, #7a6030 0%, #f0d080 40%, #c9a84c 60%, #7a6030 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 4px;
+    text-shadow: none;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .sub-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 6px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex; justify-content: center; gap: 0;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(201,168,76,0.2);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    background: rgba(201,168,76,0.03);
+  }
+  .stat-item {
+    flex: 1; min-width: 120px; max-width: 200px;
+    padding: 16px 20px;
+    text-align: center;
+    border-right: 1px solid rgba(201,168,76,0.15);
+    transition: background 0.3s;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-item:hover { background: rgba(201,168,76,0.08); }
+  .stat-num {
+    font-family: 'Cinzel', serif;
+    font-size: 32px; font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--text-dim); text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex; justify-content: center; gap: 4px;
+    padding: 20px; flex-wrap: wrap;
+  }
+  .tab-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 12px; letter-spacing: 2px;
+    padding: 10px 24px;
+    border: 1px solid rgba(201,168,76,0.3);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+  }
+  .tab-btn:hover, .tab-btn.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.08);
+    box-shadow: 0 0 20px rgba(201,168,76,0.15);
+  }
+
+  /* ── PANELS ── */
+  .panel { display: none; padding: 0 20px 60px; }
+  .panel.active { display: block; }
+
+  /* ── HOUSE FILTER ── */
+  .house-filters {
+    display: flex; justify-content: center; gap: 8px;
+    flex-wrap: wrap; margin-bottom: 30px;
+  }
+  .house-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 1px;
+    padding: 7px 16px;
+    border: 1px solid;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-transform: uppercase;
+    border-radius: 2px;
+  }
+  .house-btn.stark { border-color: var(--stark); color: var(--stark); }
+  .house-btn.lannister { border-color: var(--lannister); color: var(--lannister); }
+  .house-btn.targaryen { border-color: var(--targaryen); color: var(--targaryen); }
+  .house-btn.baratheon { border-color: var(--baratheon); color: #7f8fa6; }
+  .house-btn.tyrell { border-color: var(--tyrell); color: var(--tyrell); }
+  .house-btn.other { border-color: var(--other); color: var(--other); }
+  .house-btn.all { border-color: var(--gold); color: var(--gold); }
+  .house-btn.active, .house-btn:hover { opacity: 1; }
+  .house-btn.stark.active, .house-btn.stark:hover { background: rgba(107,158,207,0.2); }
+  .house-btn.lannister.active, .house-btn.lannister:hover { background: rgba(212,175,55,0.2); }
+  .house-btn.targaryen.active, .house-btn.targaryen:hover { background: rgba(192,57,43,0.2); }
+  .house-btn.baratheon.active, .house-btn.baratheon:hover { background: rgba(44,62,80,0.4); }
+  .house-btn.tyrell.active, .house-btn.tyrell:hover { background: rgba(39,174,96,0.2); }
+  .house-btn.other.active, .house-btn.other:hover { background: rgba(142,68,173,0.2); }
+  .house-btn.all.active, .house-btn.all:hover { background: rgba(201,168,76,0.1); }
+
+  /* ── TREE ── */
+  #tree-container {
+    width: 100%; max-width: 1400px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(13,13,21,0.9), rgba(20,20,35,0.9));
+    border: 1px solid rgba(201,168,76,0.2);
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+  #tree-svg { width: 100%; display: block; }
+  .tree-controls {
+    position: absolute; top: 16px; right: 16px;
+    display: flex; flex-direction: column; gap: 6px;
+    z-index: 10;
+  }
+  .tree-ctrl-btn {
+    width: 36px; height: 36px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold);
+    font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-family: monospace;
+  }
+  .tree-ctrl-btn:hover { background: rgba(201,168,76,0.25); border-color: var(--gold); }
+
+  /* ── PERSON TOOLTIP ── */
+  #tooltip {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s;
+    max-width: 280px;
+  }
+  .tooltip-inner {
+    background: linear-gradient(135deg, rgba(13,13,21,0.98), rgba(25,20,35,0.98));
+    border: 1px solid var(--gold-dim);
+    padding: 16px 18px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(201,168,76,0.1);
+  }
+  .tt-name {
+    font-family: 'Cinzel', serif;
+    font-size: 14px; font-weight: 600;
+    color: var(--gold-light); margin-bottom: 2px;
+  }
+  .tt-nick {
+    font-style: italic; font-size: 12px;
+    color: var(--text-dim); margin-bottom: 8px;
+  }
+  .tt-house-badge {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 1px;
+    padding: 2px 8px;
+    border: 1px solid;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .tt-row {
+    display: flex; justify-content: space-between;
+    font-size: 12px; padding: 2px 0;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    gap: 12px;
+  }
+  .tt-row:last-child { border-bottom: none; }
+  .tt-key { color: var(--text-dim); }
+  .tt-val { color: var(--text); text-align: right; }
+  .tt-bio {
+    margin-top: 8px; font-size: 12px;
+    color: var(--text-dim); font-style: italic;
+    line-height: 1.5;
+    border-top: 1px solid rgba(201,168,76,0.1);
+    padding-top: 8px;
+  }
+
+  /* ── TIMELINE ── */
+  #timeline-container {
+    max-width: 1200px; margin: 0 auto;
+  }
+  .timeline-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px; letter-spacing: 3px;
+    color: var(--gold-dim); text-transform: uppercase;
+    margin: 30px 0 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .timeline-section-title::after {
+    content: ''; flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-dim), transparent);
+  }
+  #timeline-svg { width: 100%; display: block; }
+
+  /* ── CARDS GRID ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px; max-width: 1400px; margin: 0 auto;
+  }
+  .person-card {
+    background: linear-gradient(135deg, rgba(20,18,30,0.9), rgba(15,13,22,0.9));
+    border: 1px solid rgba(201,168,76,0.15);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .person-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+  .person-card.stark::before { background: var(--stark); }
+  .person-card.lannister::before { background: var(--lannister); }
+  .person-card.targaryen::before { background: var(--targaryen); }
+  .person-card.baratheon::before { background: #7f8fa6; }
+  .person-card.tyrell::before { background: var(--tyrell); }
+  .person-card.other::before { background: var(--other); }
+  .person-card:hover {
+    border-color: rgba(201,168,76,0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.1);
+  }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .card-name {
+    font-family: 'Cinzel', serif;
+    font-size: 15px; font-weight: 600;
+    color: var(--text); line-height: 1.3;
+  }
+  .card-nick {
+    font-size: 12px; font-style: italic;
+    color: var(--text-dim); margin-top: 2px;
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    margin-top: 4px; flex-shrink: 0;
+  }
+  .status-dot.alive { background: #27ae60; box-shadow: 0 0 6px rgba(39,174,96,0.8); }
+  .status-dot.dead { background: #c0392b; box-shadow: 0 0 6px rgba(192,57,43,0.5); }
+  .card-house-tag {
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 1px;
+    padding: 3px 10px; border: 1px solid;
+    display: inline-block; margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .card-dates { font-size: 13px; color: var(--text-dim); }
+  .card-bio { font-size: 13px; color: var(--text-dim); font-style: italic; margin-top: 10px; line-height: 1.5; }
+  .card-quote {
+    margin-top: 10px; padding: 8px 12px;
+    border-left: 2px solid var(--gold-dim);
+    font-size: 12px; font-style: italic;
+    color: var(--text-dim);
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    text-align: center; margin-bottom: 30px;
+  }
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 5px;
+    color: var(--gold-dim); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .ornament-line {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  .ornament-line::before, .ornament-line::after {
+    content: '';
+    width: 80px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim));
+  }
+  .ornament-line::after { transform: scaleX(-1); }
+  .ornament-diamond { color: var(--gold); font-size: 8px; }
+
+  /* ── FAMILY TREE VISUAL ── */
+  .node circle {
+    stroke-width: 2;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .node text {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    fill: var(--text);
+    pointer-events: none;
+  }
+  .link {
+    fill: none;
+    stroke-opacity: 0.4;
+    stroke-width: 1.5;
+  }
+  .link-marriage {
+    stroke: var(--gold-dim);
+    stroke-dasharray: 4 3;
+    stroke-opacity: 0.6;
+  }
+  .link-child { stroke: rgba(201,168,76,0.3); }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 20px;
+    justify-content: center; margin: 20px 0;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 1px;
+    color: var(--text-dim); text-transform: uppercase;
+  }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .main-title { font-size: 24px; letter-spacing: 2px; }
+    .cards-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .panel.active .person-card {
+    animation: fadeInUp 0.4s ease forwards;
+  }
+  .panel.active .person-card:nth-child(1) { animation-delay: 0.02s; }
+  .panel.active .person-card:nth-child(2) { animation-delay: 0.04s; }
+  .panel.active .person-card:nth-child(3) { animation-delay: 0.06s; }
+  .panel.active .person-card:nth-child(4) { animation-delay: 0.08s; }
+  .panel.active .person-card:nth-child(5) { animation-delay: 0.10s; }
+  .panel.active .person-card:nth-child(6) { animation-delay: 0.12s; }
+
+  /* Grain overlay */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="crown-divider">
+    <span class="crown-icon">♛</span>
+  </div>
+  <div class="main-title">Игра Престолов</div>
+  <div class="sub-title">Генеалогический Атлас Великих Домов Вестероса</div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">24</div><div class="stat-label">Персонажей</div></div>
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">Великих Домов</div></div>
+    <div class="stat-item"><div class="stat-num">17</div><div class="stat-label">Погибших</div></div>
+    <div class="stat-item"><div class="stat-num">60+</div><div class="stat-label">Лет истории</div></div>
+    <div class="stat-item"><div class="stat-num">298–300</div><div class="stat-label">Годы событий</div></div>
+  </div>
+</header>
+
+<!-- NAV -->
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab('tree')">⚔ Дерево</button>
+  <button class="tab-btn" onclick="showTab('timeline')">⏳ Хронология</button>
+  <button class="tab-btn" onclick="showTab('cards')">📜 Досье</button>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip">
+  <div class="tooltip-inner" id="tooltip-content"></div>
+</div>
+
+<!-- ══════════════ TAB: TREE ══════════════ -->
+<div id="tab-tree" class="panel active">
+  <div class="section-header">
+    <div class="section-title">Генеалогическое Дерево</div>
+    <div class="ornament-line"><span class="ornament-diamond">◆</span></div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="border-color:var(--stark);background:rgba(107,158,207,0.3)"></div>Дом Старк</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:var(--lannister);background:rgba(212,175,55,0.3)"></div>Дом Ланнистер</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:var(--targaryen);background:rgba(192,57,43,0.3)"></div>Дом Таргариен</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:#7f8fa6;background:rgba(44,62,80,0.5)"></div>Дом Баратеон</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:var(--tyrell);background:rgba(39,174,96,0.3)"></div>Дом Тирелл</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:var(--other);background:rgba(142,68,173,0.3)"></div>Другие</div>
+  </div>
+
+  <div class="house-filters">
+    <button class="house-btn all active" onclick="filterTree('all', this)">Все дома</button>
+    <button class="house-btn stark" onclick="filterTree('Старк', this)">🐺 Старк</button>
+    <button class="house-btn lannister" onclick="filterTree('Ланнистер', this)">🦁 Ланнистер</button>
+    <button class="house-btn targaryen" onclick="filterTree('Таргариен', this)">🐉 Таргариен</button>
+    <button class="house-btn baratheon" onclick="filterTree('Баратеон', this)">🦌 Баратеон</button>
+    <button class="house-btn tyrell" onclick="filterTree('Тирелл', this)">🌹 Тирелл</button>
+  </div>
+
+  <div id="tree-container">
+    <div class="tree-controls">
+      <button class="tree-ctrl-btn" onclick="zoomIn()">+</button>
+      <button class="tree-ctrl-btn" onclick="zoomOut()">−</button>
+      <button class="tree-ctrl-btn" onclick="resetZoom()" title="Сброс">⊙</button>
+    </div>
+    <svg id="tree-svg"></svg>
+  </div>
+  <p style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:12px;font-style:italic">
+    Наведи на узел для информации · Перетащи для навигации · Колёсико для масштаба
+  </p>
+</div>
+
+<!-- ══════════════ TAB: TIMELINE ══════════════ -->
+<div id="tab-timeline" class="panel">
+  <div class="section-header">
+    <div class="section-title">Хронология</div>
+    <div class="ornament-line"><span class="ornament-diamond">◆</span></div>
+  </div>
+  <div id="timeline-container">
+    <svg id="timeline-svg"></svg>
+  </div>
+</div>
+
+<!-- ══════════════ TAB: CARDS ══════════════ -->
+<div id="tab-cards" class="panel">
+  <div class="section-header">
+    <div class="section-title">Персональные Досье</div>
+    <div class="ornament-line"><span class="ornament-diamond">◆</span></div>
+  </div>
+
+  <div class="house-filters">
+    <button class="house-btn all active" onclick="filterCards('all', this)">Все</button>
+    <button class="house-btn stark" onclick="filterCards('Старк', this)">🐺 Старк</button>
+    <button class="house-btn lannister" onclick="filterCards('Ланнистер', this)">🦁 Ланнистер</button>
+    <button class="house-btn targaryen" onclick="filterCards('Таргариен', this)">🐉 Таргариен</button>
+    <button class="house-btn baratheon" onclick="filterCards('Баратеон', this)">🦌 Баратеон</button>
+    <button class="house-btn tyrell" onclick="filterCards('Тирелл', this)">🌹 Тирелл</button>
+    <button class="house-btn other" onclick="filterCards('other', this)">👁 Прочие</button>
+  </div>
+
+  <div class="cards-grid" id="cards-grid"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════
+const PERSONS = [
+  { id:"ned", name:"Старк Эддард", nick:"Нед", house:"Старк", born:262, died:298, status:"dead",
+    title:"Лорд Винтерфелла, Десница", father:"rickard", mother:null, spouse:"catelyn",
+    children:["robb","sansa","arya","bran","rickon"],
+    bio:"Лорд Винтерфелла. Человек чести. Казнён за правду о рождении Джоффри.",
+    quote:"Тот, кто выносит приговор, должен сам взмахнуть мечом" },
+  { id:"catelyn", name:"Талли Кейтилин", nick:"Кейт", house:"Талли / Старк", born:264, died:299, status:"dead",
+    title:"Леди Винтерфелла", father:null, mother:null, spouse:"ned",
+    children:["robb","sansa","arya","bran","rickon"],
+    bio:"Дочь лорда Риверрана. Убита на Красной Свадьбе.", quote:"" },
+  { id:"robb", name:"Старк Робб", nick:"Молодой Волк", house:"Старк", born:281, died:299, status:"dead",
+    title:"Король Севера", father:"ned", mother:"catelyn", spouse:null, children:[],
+    bio:"Непобеждённый в битвах. Предан и убит на Красной Свадьбе.", quote:"" },
+  { id:"sansa", name:"Старк Санса", nick:null, house:"Старк", born:283, died:null, status:"alive",
+    title:"Королева Севера", father:"ned", mother:"catelyn", spouse:null, children:[],
+    bio:"Пережила всё — стала Королевой независимого Севера.",
+    quote:"Когда люди говорят «нельзя» — они просто не хотят" },
+  { id:"arya", name:"Старк Арья", nick:null, house:"Старк", born:284, died:null, status:"alive",
+    title:null, father:"ned", mother:"catelyn", spouse:null, children:[],
+    bio:"Ассасин Безликих. Убила Найтс Кинга. Уплыла на запад.", quote:"Нет. Я — волчица" },
+  { id:"bran", name:"Старк Брандон", nick:"Бран", house:"Старк", born:286, died:null, status:"alive",
+    title:"Король Шести Королевств", father:"ned", mother:"catelyn", spouse:null, children:[],
+    bio:"Трёхглазый Ворон. Видит прошлое и будущее. Стал королём.", quote:"Я больше не Бран Старк" },
+  { id:"rickon", name:"Старк Рикон", nick:null, house:"Старк", born:289, died:300, status:"dead",
+    title:null, father:"ned", mother:"catelyn", spouse:null, children:[],
+    bio:"Младший сын Неда. Убит стрелой Рамси Болтона.", quote:"" },
+  { id:"jon", name:"Сноу Джон", nick:"Эйгон VI Таргариен", house:"Таргариен / Старк", born:283, died:null, status:"alive",
+    title:"Лорд-Командующий Ночного Дозора", father:"rhaegar", mother:"lyanna", children:[],
+    bio:"Законный наследник Железного Трона. Воскрес. Убил Дейенерис.",
+    quote:"Я ничего не знаю" },
+  { id:"rickard", name:"Старк Рикард", nick:null, house:"Старк", born:230, died:282, status:"dead",
+    title:"Лорд Винтерфелла", father:null, mother:null, spouse:null,
+    children:["ned","lyanna"],
+    bio:"Лорд Севера. Сожжён живьём Безумным Королём.", quote:"" },
+  { id:"lyanna", name:"Старк Лианна", nick:null, house:"Старк", born:263, died:283, status:"dead",
+    title:null, father:"rickard", mother:null, spouse:"rhaegar", children:["jon"],
+    bio:"Сестра Неда. Тайно вышла за Рейегара. Умерла родив Джона.", quote:"Обещай мне, Нед" },
+  { id:"tywin", name:"Ланнистер Тайвин", nick:null, house:"Ланнистер", born:242, died:300, status:"dead",
+    title:"Лорд Бобровой Крепости, Десница", father:null, mother:null, spouse:null,
+    children:["cersei","jaime","tyrion"],
+    bio:"Богатейший лорд. Убит сыном Тирионом.", quote:"Ланнистеры всегда платят долги" },
+  { id:"cersei", name:"Ланнистер Серсея", nick:null, house:"Ланнистер", born:266, died:300, status:"dead",
+    title:"Королева Вестероса", father:"tywin", mother:null, spouse:"robert",
+    children:["joffrey","tommen"],
+    bio:"Королева-регент. Все дети — от брата Джейме. Погибла под обломками замка.",
+    quote:"Когда ты играешь в игру престолов — ты побеждаешь или умираешь" },
+  { id:"jaime", name:"Ланнистер Джейме", nick:"Цареубийца", house:"Ланнистер", born:266, died:300, status:"dead",
+    title:"Лорд-Командующий Королевской Гвардии", father:"tywin", mother:null, spouse:null, children:[],
+    bio:"Лучший мечник. Убил Безумного Короля. Погиб вместе с Серсеей.",
+    quote:"Никогда не забывай, что значит — Цареубийца" },
+  { id:"tyrion", name:"Ланнистер Тирион", nick:"Бес", house:"Ланнистер", born:273, died:null, status:"alive",
+    title:"Рука Короля Брана", father:"tywin", mother:null, spouse:null, children:[],
+    bio:"Карлик, умнейший человек в королевстве. Дважды Десница.", quote:"Я пью и знаю вещи" },
+  { id:"robert", name:"Баратеон Роберт", nick:null, house:"Баратеон", born:262, died:298, status:"dead",
+    title:"Король Семи Королевств", father:null, mother:null, spouse:"cersei",
+    children:["joffrey","tommen"],
+    bio:"Возглавил восстание против Таргариенов. Умер от раны кабана.", quote:"" },
+  { id:"joffrey", name:"Баратеон Джоффри", nick:null, house:"Баратеон", born:284, died:299, status:"dead",
+    title:"Король Семи Королевств", father:"jaime", mother:"cersei", spouse:null, children:[],
+    bio:"Тиран. Казнил Неда Старка. Отравлен на Пурпурной Свадьбе.", quote:"Я — король!" },
+  { id:"tommen", name:"Баратеон/Ланнистер Томмен", nick:null, house:"Баратеон", born:288, died:300, status:"dead",
+    title:"Король Семи Королевств", father:"jaime", mother:"cersei", spouse:null, children:[],
+    bio:"Добрый мальчик-король. Прыгнул из окна после гибели жены.", quote:"" },
+  { id:"daenerys", name:"Таргариен Дейенерис", nick:"Мать Драконов", house:"Таргариен", born:284, died:300, status:"dead",
+    title:"Королева Вестероса, Кхалиси", father:"aerys", mother:null, spouse:null, children:[],
+    bio:"Освободила рабов, завоевала Вестерос. Сожгла Королевскую Гавань. Убита Джоном.",
+    quote:"Я не хочу быть королевой пепла" },
+  { id:"viserys", name:"Таргариен Визерис", nick:"Попрошайный Король", house:"Таргариен", born:277, died:298, status:"dead",
+    title:null, father:"aerys", mother:null, spouse:null, children:[],
+    bio:"Продал сестру за армию. Получил расплавленное золото на голову.", quote:"" },
+  { id:"rhaegar", name:"Таргариен Рейегар", nick:null, house:"Таргариен", born:259, died:283, status:"dead",
+    title:"Принц Вестероса", father:"aerys", mother:null, spouse:"lyanna", children:["jon"],
+    bio:"Блестящий принц и певец. Тайно женился на Лианне. Убит Робертом.", quote:"" },
+  { id:"aerys", name:"Таргариен Эйерис II", nick:"Безумный Король", house:"Таргариен", born:233, died:283, status:"dead",
+    title:"Король Семи Королевств", father:null, mother:null, spouse:null,
+    children:["rhaegar","daenerys","viserys"],
+    bio:"Сжигал людей живьём. Убит Джейме Ланнистером которому сам же доверял.", quote:"Сжечь их всех" },
+  { id:"margaery", name:"Тирелл Маргери", nick:null, house:"Тирелл", born:283, died:300, status:"dead",
+    title:"Королева Вестероса", father:null, mother:null, spouse:"joffrey", children:[],
+    bio:"Трижды королева. Умная и дипломатичная. Погибла во взрыве Великой Септы.", quote:"" },
+  { id:"olenna", name:"Тирелл Оленна", nick:"Королева Шипов", house:"Тирелл", born:240, died:300, status:"dead",
+    title:null, father:null, mother:null, spouse:null, children:[],
+    bio:"Острый язык. Организовала убийство Джоффри. Призналась в этом Джейме перед смертью.",
+    quote:"Скажи своей сестре — я сделала это я" },
+  { id:"petyr", name:"Бейлиш Петир", nick:"Мизинец", house:"Бейлиш", born:268, died:300, status:"dead",
+    title:"Лорд Харренхола", father:null, mother:null, spouse:null, children:[],
+    bio:"Главный манипулятор. Организовал войну Пяти Королей. Убит в Винтерфелле.",
+    quote:"Хаос — это не яма. Хаос — это лестница" },
+];
+
+const HOUSE_COLORS = {
+  "Старк": "#6b9ecf",
+  "Талли / Старк": "#6b9ecf",
+  "Таргариен / Старк": "#c0392b",
+  "Ланнистер": "#d4af37",
+  "Баратеон": "#7f8fa6",
+  "Тирелл": "#27ae60",
+  "Таргариен": "#c0392b",
+};
+
+function houseColor(h) {
+  for (const [k,v] of Object.entries(HOUSE_COLORS)) {
+    if (h && h.includes(k.split(' ')[0])) return v;
+  }
+  return "#8e44ad";
+}
+
+function houseClass(h) {
+  if (!h) return "other";
+  if (h.includes("Старк") || h.includes("Талли")) return "stark";
+  if (h.includes("Ланнистер")) return "lannister";
+  if (h.includes("Таргариен")) return "targaryen";
+  if (h.includes("Баратеон")) return "baratheon";
+  if (h.includes("Тирелл")) return "tyrell";
+  return "other";
+}
+
+// ═══════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════
+function showTab(t) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${t}`).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (t === 'tree' && !treeBuilt) buildTree();
+  if (t === 'timeline' && !timelineBuilt) buildTimeline();
+  if (t === 'cards') buildCards();
+}
+
+// ═══════════════════════════════════════════
+//  TOOLTIP
+// ═══════════════════════════════════════════
+const tooltip = document.getElementById('tooltip');
+const tooltipContent = document.getElementById('tooltip-content');
+
+function showTooltip(e, person) {
+  const col = houseColor(person.house);
+  tooltipContent.innerHTML = `
+    <div class="tt-name">${person.name}</div>
+    ${person.nick ? `<div class="tt-nick">«${person.nick}»</div>` : ''}
+    <div class="tt-house-badge" style="border-color:${col};color:${col}">🏰 ${person.house || '—'}</div><br>
+    <div class="tt-row"><span class="tt-key">Рождение</span><span class="tt-val">${person.born} AC</span></div>
+    <div class="tt-row"><span class="tt-key">Смерть</span><span class="tt-val">${person.died ? person.died + ' AC' : '—'}</span></div>
+    ${person.title ? `<div class="tt-row"><span class="tt-key">Титул</span><span class="tt-val">${person.title}</span></div>` : ''}
+    <div class="tt-row"><span class="tt-key">Статус</span><span class="tt-val" style="color:${person.status==='alive'?'#27ae60':'#c0392b'}">${person.status==='alive'?'⬤ Жив/а':'⬤ Погиб/ла'}</span></div>
+    <div class="tt-bio">${person.bio}</div>
+    ${person.quote ? `<div class="tt-bio" style="border-top:1px solid rgba(201,168,76,0.1);padding-top:8px;color:var(--gold-dim)"><em>«${person.quote}»</em></div>` : ''}
+  `;
+  tooltip.style.opacity = '1';
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  const x = e.clientX + 16, y = e.clientY - 20;
+  const w = tooltip.offsetWidth, h = tooltip.offsetHeight;
+  tooltip.style.left = (x + w > window.innerWidth ? x - w - 32 : x) + 'px';
+  tooltip.style.top = (y + h > window.innerHeight ? y - h : y) + 'px';
+}
+
+function hideTooltip() { tooltip.style.opacity = '0'; }
+
+document.addEventListener('mousemove', e => {
+  if (tooltip.style.opacity === '1') moveTooltip(e);
+});
+
+// ═══════════════════════════════════════════
+//  TREE
+// ═══════════════════════════════════════════
+let treeBuilt = false;
+let svgTree, gTree, zoomBehavior;
+let currentFilter = 'all';
+
+function buildTree() {
+  treeBuilt = true;
+  const container = document.getElementById('tree-container');
+  const W = container.clientWidth || 1200;
+  const H = 820;
+
+  svgTree = d3.select('#tree-svg')
+    .attr('height', H)
+    .attr('viewBox', `0 0 ${W} ${H}`);
+
+  // Defs: gradients, filters
+  const defs = svgTree.append('defs');
+  defs.append('filter').attr('id','glow').html(`
+    <feGaussianBlur stdDeviation="3" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  `);
+
+  // Background grid
+  svgTree.append('rect').attr('width',W).attr('height',H)
+    .attr('fill','url(#treeBg)');
+  const bgGrad = defs.append('radialGradient').attr('id','treeBg')
+    .attr('cx','50%').attr('cy','50%').attr('r','70%');
+  bgGrad.append('stop').attr('offset','0%').attr('stop-color','#141220');
+  bgGrad.append('stop').attr('offset','100%').attr('stop-color','#0a0a12');
+
+  zoomBehavior = d3.zoom().scaleExtent([0.3, 3])
+    .on('zoom', e => gTree.attr('transform', e.transform));
+  svgTree.call(zoomBehavior);
+
+  gTree = svgTree.append('g');
+  renderTree(W, H, 'all');
+}
+
+function renderTree(W, H, filter) {
+  gTree.selectAll('*').remove();
+
+  // Filter persons
+  let visibleIds;
+  if (filter === 'all') {
+    visibleIds = new Set(PERSONS.map(p => p.id));
+  } else {
+    visibleIds = new Set(PERSONS.filter(p => p.house && p.house.includes(filter)).map(p => p.id));
+    // Also add direct relatives
+    const extra = new Set();
+    PERSONS.forEach(p => {
+      if (!visibleIds.has(p.id)) return;
+      if (p.father && visibleIds.has(p.father)) extra.add(p.father);
+      if (p.mother && visibleIds.has(p.mother)) extra.add(p.mother);
+    });
+  }
+
+  const persons = PERSONS.filter(p => visibleIds.has(p.id));
+  const byId = Object.fromEntries(persons.map(p => [p.id, p]));
+
+  // Layout: force simulation
+  const nodes = persons.map(p => ({
+    ...p,
+    x: W/2 + (Math.random()-0.5)*400,
+    y: 100 + (p.born - 230) * 1.6,
+  }));
+
+  const nodeById = Object.fromEntries(nodes.map(n => [n.id, n]));
+
+  const links = [];
+  nodes.forEach(n => {
+    if (n.father && nodeById[n.father]) links.push({ source: n.father, target: n.id, type: 'child' });
+    if (n.mother && nodeById[n.mother]) links.push({ source: n.mother, target: n.id, type: 'child' });
+    if (n.spouse && nodeById[n.spouse] && n.id < n.spouse) {
+      links.push({ source: n.id, target: n.spouse, type: 'marriage' });
+    }
+  });
+
+  const sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.type==='marriage' ? 80 : 90).strength(0.6))
+    .force('charge', d3.forceManyBody().strength(-220))
+    .force('x', d3.forceX(W/2).strength(0.03))
+    .force('y', d3.forceY(d => 80 + (d.born - 230) * 1.8).strength(0.35))
+    .force('collision', d3.forceCollide(42))
+    .stop();
+
+  for (let i = 0; i < 300; i++) sim.tick();
+
+  // Draw links
+  const linkG = gTree.append('g');
+  linkG.selectAll('path').data(links).enter().append('path')
+    .attr('class', d => 'link ' + (d.type === 'marriage' ? 'link-marriage' : 'link-child'))
+    .attr('d', d => {
+      const s = nodeById[d.source.id || d.source];
+      const t = nodeById[d.target.id || d.target];
+      if (!s || !t) return '';
+      const mx = (s.x + t.x)/2, my = (s.y + t.y)/2 - 20;
+      return `M${s.x},${s.y} Q${mx},${my} ${t.x},${t.y}`;
+    })
+    .attr('stroke', d => d.type === 'marriage' ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.2)');
+
+  // Marriage icons
+  linkG.selectAll('.marriage-icon').data(links.filter(l => l.type==='marriage')).enter()
+    .append('text')
+    .attr('x', d => {
+      const s = nodeById[d.source.id || d.source];
+      const t = nodeById[d.target.id || d.target];
+      return s && t ? (s.x + t.x)/2 : 0;
+    })
+    .attr('y', d => {
+      const s = nodeById[d.source.id || d.source];
+      const t = nodeById[d.target.id || d.target];
+      return s && t ? (s.y + t.y)/2 - 6 : 0;
+    })
+    .attr('text-anchor','middle')
+    .attr('font-size', '10px')
+    .attr('fill','rgba(201,168,76,0.6)')
+    .text('⚭');
+
+  // Draw nodes
+  const nodeG = gTree.append('g');
+  const node = nodeG.selectAll('g.node').data(nodes).enter().append('g')
+    .attr('class','node')
+    .attr('transform', d => `translate(${d.x},${d.y})`)
+    .on('mouseover', (e, d) => showTooltip(e, d))
+    .on('mouseout', hideTooltip)
+    .call(d3.drag()
+      .on('start', (e,d) => { if (!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag', (e,d) => { d.fx=e.x; d.fy=e.y; })
+      .on('end', (e,d) => { if (!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; }));
+
+  // Outer ring
+  node.append('circle')
+    .attr('r', 22)
+    .attr('fill', 'none')
+    .attr('stroke', d => houseColor(d.house))
+    .attr('stroke-width', 1)
+    .attr('stroke-opacity', 0.3)
+    .attr('stroke-dasharray', '3 2');
+
+  // Main circle
+  node.append('circle')
+    .attr('r', 16)
+    .attr('fill', d => {
+      const c = houseColor(d.house);
+      return d.status === 'alive' ? c + '33' : c + '1a';
+    })
+    .attr('stroke', d => houseColor(d.house))
+    .attr('stroke-width', d => d.status === 'alive' ? 2 : 1.5)
+    .attr('stroke-opacity', d => d.status === 'alive' ? 1 : 0.5)
+    .attr('filter', d => d.status === 'alive' ? 'url(#glow)' : null);
+
+  // Death indicator
+  node.filter(d => d.status === 'dead').append('line')
+    .attr('x1',-8).attr('y1',-8).attr('x2',8).attr('y2',8)
+    .attr('stroke','rgba(192,57,43,0.5)').attr('stroke-width',1);
+  node.filter(d => d.status === 'dead').append('line')
+    .attr('x1',8).attr('y1',-8).attr('x2',-8).attr('y2',8)
+    .attr('stroke','rgba(192,57,43,0.5)').attr('stroke-width',1);
+
+  // Name label
+  node.append('text')
+    .attr('dy', 30)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', '10px')
+    .attr('fill', d => houseColor(d.house))
+    .attr('opacity', 0.9)
+    .text(d => {
+      const parts = d.name.split(' ');
+      return parts.length > 1 ? parts[parts.length-1] : d.name;
+    });
+
+  // Birth year
+  node.append('text')
+    .attr('dy', 42)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', '9px')
+    .attr('fill', 'var(--text-dim)')
+    .text(d => d.born + (d.died ? '–' + d.died : ''));
+}
+
+function filterTree(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('#tab-tree .house-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const W = document.getElementById('tree-container').clientWidth || 1200;
+  renderTree(W, 820, filter === 'all' ? 'all' : filter);
+}
+
+function zoomIn() { svgTree.transition().call(zoomBehavior.scaleBy, 1.4); }
+function zoomOut() { svgTree.transition().call(zoomBehavior.scaleBy, 0.7); }
+function resetZoom() { svgTree.transition().call(zoomBehavior.transform, d3.zoomIdentity.translate(0,0).scale(1)); }
+
+// ═══════════════════════════════════════════
+//  TIMELINE
+// ═══════════════════════════════════════════
+let timelineBuilt = false;
+
+function buildTimeline() {
+  timelineBuilt = true;
+  const container = document.getElementById('timeline-container');
+  const W = container.clientWidth || 1100;
+
+  const events = [];
+  PERSONS.forEach(p => {
+    events.push({ year: p.born, name: p.name, nick: p.nick, type: 'birth', house: p.house, id: p.id });
+    if (p.died) events.push({ year: p.died, name: p.name, nick: p.nick, type: 'death', house: p.house, id: p.id });
+  });
+  // Key historical events
+  const keyEvents = [
+    { year: 282, label: "Война Роберта", type: "war" },
+    { year: 283, label: "Башня Радости", type: "secret" },
+    { year: 298, label: "Казнь Неда Старка", type: "death_key" },
+    { year: 299, label: "Красная Свадьба", type: "massacre" },
+    { year: 300, label: "Великая война", type: "war" },
+    { year: 300, label: "Битва за Железный Трон", type: "war" },
+  ];
+
+  const minY = 230, maxY = 302;
+  const margin = { top: 20, right: 60, bottom: 40, left: 60 };
+  const innerW = W - margin.left - margin.right;
+
+  // group persons by house for rows
+  const houses = ["Старк","Ланнистер","Таргариен","Баратеон","Тирелл","Другие"];
+  const housePersons = {};
+  houses.forEach(h => housePersons[h] = []);
+  PERSONS.forEach(p => {
+    const hk = houses.find(h => p.house && p.house.includes(h)) || "Другие";
+    housePersons[hk].push(p);
+  });
+
+  const rowH = 46;
+  const houseRows = houses.map((h, i) => ({ house: h, y: i * rowH * (housePersons[h].length > 0 ? 1 : 0) }));
+  let totalH = 0;
+  const houseY = {};
+  houses.forEach(h => {
+    houseY[h] = totalH;
+    totalH += Math.max(1, housePersons[h].length) * rowH + 16;
+  });
+  const H = totalH + margin.top + margin.bottom + 60;
+
+  const svg = d3.select('#timeline-svg')
+    .attr('height', H)
+    .attr('viewBox', `0 0 ${W} ${H}`);
+
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top+50})`);
+
+  const xScale = d3.scaleLinear().domain([minY, maxY]).range([0, innerW]);
+
+  // Background
+  svg.append('rect').attr('width',W).attr('height',H)
+    .attr('fill','#0a0a12');
+
+  // Title
+  svg.append('text')
+    .attr('x', W/2).attr('y', 30)
+    .attr('text-anchor','middle')
+    .attr('font-family','Cinzel, serif')
+    .attr('font-size','13px')
+    .attr('letter-spacing','4px')
+    .attr('fill','var(--gold-dim)')
+    .text('ХРОНОЛОГИЯ ЖИЗНИ ПЕРСОНАЖЕЙ · 230 — 302 AC');
+
+  // X axis
+  const axisG = g.append('g');
+  for (let y = minY; y <= maxY; y += 5) {
+    const x = xScale(y);
+    axisG.append('line')
+      .attr('x1',x).attr('y1',-10)
+      .attr('x2',x).attr('y2',totalH+10)
+      .attr('stroke', y % 10 === 0 ? 'rgba(201,168,76,0.2)' : 'rgba(201,168,76,0.08)')
+      .attr('stroke-dasharray', y % 10 === 0 ? '0' : '2 4');
+    if (y % 10 === 0) {
+      axisG.append('text')
+        .attr('x',x).attr('y',-16)
+        .attr('text-anchor','middle')
+        .attr('font-family','Cinzel,serif')
+        .attr('font-size','10px')
+        .attr('fill','var(--text-dim)')
+        .text(y + ' AC');
+    }
+  }
+
+  // Key events
+  keyEvents.forEach(ev => {
+    const x = xScale(ev.year);
+    const col = ev.type === 'war' ? '#c0392b' : ev.type === 'massacre' ? '#8b1a1a' : 'var(--gold-dim)';
+    g.append('line')
+      .attr('x1',x).attr('y1',-8).attr('x2',x).attr('y2',totalH)
+      .attr('stroke', col).attr('stroke-opacity',0.5).attr('stroke-dasharray','6 3').attr('stroke-width',1.5);
+    g.append('text')
+      .attr('x',x+3).attr('y',-2)
+      .attr('font-family','EB Garamond,serif').attr('font-size','11px').attr('font-style','italic')
+      .attr('fill',col).attr('opacity',0.8)
+      .text(ev.label);
+  });
+
+  // House labels + life bars
+  houses.forEach(house => {
+    const hps = housePersons[house];
+    if (!hps.length) return;
+    const yStart = houseY[house];
+    const col = houseColor(house);
+
+    // House label
+    g.append('text')
+      .attr('x',-10).attr('y', yStart + rowH/2)
+      .attr('text-anchor','end')
+      .attr('dominant-baseline','middle')
+      .attr('font-family','Cinzel,serif').attr('font-size','11px')
+      .attr('fill', col).attr('opacity',0.7)
+      .attr('letter-spacing','1px')
+      .text(house.split(' ')[0].toUpperCase());
+
+    // Separator
+    g.append('line')
+      .attr('x1',-40).attr('y1',yStart).attr('x2',innerW+10).attr('y2',yStart)
+      .attr('stroke','rgba(201,168,76,0.1)').attr('stroke-dasharray','2 4');
+
+    hps.forEach((p, i) => {
+      const y = yStart + i * rowH + 10;
+      const x1 = xScale(p.born);
+      const x2 = xScale(p.died || 302);
+      const laneH = 16;
+
+      // Life bar background
+      g.append('rect')
+        .attr('x', x1).attr('y', y).attr('width', x2-x1).attr('height', laneH)
+        .attr('fill', col).attr('opacity', p.status === 'alive' ? 0.18 : 0.1)
+        .attr('rx', 2);
+
+      // Life bar fill
+      g.append('rect')
+        .attr('x', x1).attr('y', y+1).attr('width', x2-x1).attr('height', 3)
+        .attr('fill', col).attr('opacity', p.status === 'alive' ? 0.7 : 0.4)
+        .attr('rx', 1);
+
+      // Birth dot
+      g.append('circle').attr('cx',x1).attr('cy',y+laneH/2).attr('r',4)
+        .attr('fill',col).attr('opacity',0.8).attr('stroke','#0a0a12').attr('stroke-width',1);
+
+      // Death dot
+      if (p.died) {
+        g.append('circle').attr('cx',x2).attr('cy',y+laneH/2).attr('r',4)
+          .attr('fill','#c0392b').attr('opacity',0.8).attr('stroke','#0a0a12').attr('stroke-width',1);
+        g.append('text').attr('x',x2+6).attr('y',y+laneH/2)
+          .attr('dominant-baseline','middle').attr('font-size','8px')
+          .attr('fill','rgba(192,57,43,0.6)').text('†');
+      }
+
+      // Name
+      const nameX = Math.min(x1+4, innerW-60);
+      g.append('text')
+        .attr('x', nameX).attr('y', y+laneH/2)
+        .attr('dominant-baseline','middle')
+        .attr('font-family','Cinzel,serif').attr('font-size','9.5px')
+        .attr('fill', col).attr('opacity',0.85)
+        .text(p.nick || p.name.split(' ').slice(-1)[0])
+        .on('mouseover', (e) => showTooltip(e, p))
+        .on('mouseout', hideTooltip);
+    });
+  });
+
+  // Bottom axis
+  g.append('g').attr('transform', `translate(0,${totalH+10})`)
+    .call(d3.axisBottom(xScale).tickFormat(d => d + ' AC').ticks(10))
+    .call(g => {
+      g.select('.domain').attr('stroke','rgba(201,168,76,0.3)');
+      g.selectAll('.tick line').attr('stroke','rgba(201,168,76,0.3)');
+      g.selectAll('.tick text').attr('fill','var(--text-dim)').attr('font-family','Cinzel,serif').attr('font-size','10px');
+    });
+}
+
+// ═══════════════════════════════════════════
+//  CARDS
+// ═══════════════════════════════════════════
+let cardsBuilt = false;
+let cardsFilter = 'all';
+
+function buildCards(filter) {
+  filter = filter || cardsFilter || 'all';
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = '';
+
+  const filtered = PERSONS.filter(p => {
+    if (filter === 'all') return true;
+    if (filter === 'other') return !['Старк','Ланнистер','Таргариен','Баратеон','Тирелл'].some(h => p.house && p.house.includes(h));
+    return p.house && p.house.includes(filter);
+  });
+
+  filtered.forEach(p => {
+    const col = houseColor(p.house);
+    const hc = houseClass(p.house);
+    const card = document.createElement('div');
+    card.className = `person-card ${hc}`;
+    card.onmouseover = e => showTooltip(e, p);
+    card.onmouseout = hideTooltip;
+    card.innerHTML = `
+      <div class="card-header">
+        <div>
+          <div class="card-name">${p.name}</div>
+          ${p.nick ? `<div class="card-nick">«${p.nick}»</div>` : ''}
+        </div>
+        <div class="status-dot ${p.status === 'alive' ? 'alive' : 'dead'}"></div>
+      </div>
+      <div class="card-house-tag" style="border-color:${col};color:${col}">🏰 ${p.house || '—'}</div>
+      <div class="card-dates">
+        🗓 ${p.born} AC${p.died ? ' — † ' + p.died + ' AC' : ' — н.в.'}
+        ${p.title ? `<br>👑 ${p.title}` : ''}
+      </div>
+      <div class="card-bio">${p.bio}</div>
+      ${p.quote ? `<div class="card-quote">«${p.quote}»</div>` : ''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function filterCards(filter, btn) {
+  cardsFilter = filter;
+  document.querySelectorAll('#tab-cards .house-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildCards(filter);
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  buildCards('all');
+  buildTree();
+});
+
+window.addEventListener('resize', () => {
+  if (treeBuilt) {
+    const W = document.getElementById('tree-container').clientWidth || 1200;
+    renderTree(W, 820, currentFilter === 'all' ? 'all' : currentFilter);
+  }
+  if (timelineBuilt) {
+    document.getElementById('timeline-svg').innerHTML = '';
+    timelineBuilt = false;
+    buildTimeline();
+  }
+});
+</script>
+</body>
+</html>
