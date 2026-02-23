@@ -1,6 +1,6 @@
 {
   "command_timeout": 5,
-  "templates_folder": "_Templates",
+  "templates_folder": "_templates",
   "templates_pairs": [
     [
       "",
@@ -15,28 +15,36 @@
   "enable_folder_templates": true,
   "folder_templates": [
     {
-      "folder": "People",
-      "template": "_Templates/Person.md"
+      "folder": "persons",
+      "template": "_templates/person.md"
     },
     {
-      "folder": "Families",
-      "template": "_Templates/Family.md"
+      "folder": "families",
+      "template": "_templates/family.md"
     },
     {
-      "folder": "Places",
-      "template": "_Templates/Place.md"
+      "folder": "places",
+      "template": "_templates/place.md"
     },
     {
-      "folder": "Sources",
-      "template": "_Templates/Source.md"
+      "folder": "sources",
+      "template": "_templates/source.md"
     },
     {
-      "folder": "Documents",
-      "template": "_Templates/Document.md"
+      "folder": "stories",
+      "template": "_templates/story.md"
     },
     {
-      "folder": "Stories",
-      "template": "_Templates/Story.md"
+      "folder": "events",
+      "template": "_templates/event.md"
+    },
+    {
+      "folder": "reports",
+      "template": "_templates/research-entry.md"
+    },
+    {
+      "folder": "documents",
+      "template": "_templates/document.md"
     }
   ],
   "enable_file_templates": false,

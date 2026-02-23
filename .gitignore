@@ -1,4 +1,21 @@
+# Obsidian workspace
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
+.obsidian/workspace*.json
+
+# Корзина Obsidian
 .trash/
+
+# macOS
 .DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Node
+node_modules/
+
+# Большие медиа-файлы (опционально, если используете Git LFS)
+# Media/**/*.tiff
+# Media/**/*.psd
