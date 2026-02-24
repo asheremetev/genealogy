@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "parsedAt": "2026-02-24T13:13:16.921Z",
+    "vaultPath": "/Users/a.sheremetev/git/genealogy/genealogy-tree-viewer/vault-parser",
+    "counts": {
+      "persons": 0,
+      "families": 0,
+      "places": 0,
+      "events": 0,
+      "sources": 0,
+      "stories": 0
+    }
+  },
+  "persons": [],
+  "families": [],
+  "places": [],
+  "events": [],
+  "sources": [],
+  "stories": []
+}
