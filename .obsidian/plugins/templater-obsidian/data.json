@@ -41,10 +41,6 @@
     {
       "folder": "reports",
       "template": "_templates/research-entry.md"
-    },
-    {
-      "folder": "documents",
-      "template": "_templates/document.md"
     }
   ],
   "enable_file_templates": false,
