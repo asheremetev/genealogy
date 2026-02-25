@@ -463,7 +463,7 @@ WHERE тип = "семья" AND !дата_брака
 ```dataview
 TABLE WITHOUT ID file.link AS "Место", тип_места AS "Тип"
 FROM "places"
-WHERE тип = "место" AND !координаты
+WHERE тип = "место" AND (!широта OR !долгота)
 ```
 
 ### Персоны без источников

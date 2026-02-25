@@ -108,33 +108,41 @@ git push -u origin main
 
 `Settings → Community Plugins → Browse → Obsidian Leaflet`
 
+**Настройки Leaflet:**
+
+| Параметр                      | Значение |
+| ----------------------------- | -------- |
+| Enable Dataview Inline Fields | ✅ ON    |
+
 **Использование в заметках мест:**
 
-В YAML указываем координаты:
+В YAML указываем координаты двумя полями:
 
 ```yaml
-координаты: [57.7676, 40.9267] # [широта, долгота]
+широта: 57.7676
+долгота: 40.9267
 ```
 
-В теле заметки карта рендерится автоматически через dataviewjs (см. шаблон place.md).
+В теле заметки карта рендерится через блок:
+
+````markdown
+```leaflet
+id: place-map
+height: 400px
+lat: `= this.широта`
+long: `= this.долгота`
+zoom: 12
+marker: default, `= this.широта`, `= this.долгота`, `= this.название`
+```
+````
 
 **Как найти координаты:**
 
 1. Открой [Google Maps](https://maps.google.com)
 2. Найди место, кликни правой кнопкой
-3. Скопируй координаты (первое число — широта, второе — долгота)
-
-**Пример блока Leaflet:**
-
-````markdown
-```leaflet
-id: kostroma-map
-height: 400px
-coordinates: [57.7676, 40.9267]
-zoom: 12
-marker: default, 57.7676, 40.9267, "Кострома"
-```
-````
+3. Скопируй координаты:
+   - Первое число → `широта`
+   - Второе число → `долгота`
 
 ---
 
@@ -215,6 +223,19 @@ TABLE WITHOUT ID
 FROM "sources"
 WHERE оцифровано = "нет"
 SORT год_документа ASC
+```
+
+### Места с координатами
+
+```dataview
+TABLE WITHOUT ID
+  file.link AS "Место",
+  тип_места AS "Тип",
+  широта AS "Широта",
+  долгота AS "Долгота"
+FROM "places"
+WHERE широта AND долгота
+SORT file.name ASC
 ```
 
 ### Места с наибольшим числом рождений

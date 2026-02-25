@@ -7,8 +7,9 @@
 регион_сейчас:
 страна_исторически:
 регион_исторически:
-координаты: [] # [lat, lng] — например [57.7676, 40.9267]
-период_связи: # например "1850–1920"
+широта: # например 57.7676
+долгота: # например 40.9267
+период_связи:
 существует: неизвестно # да | нет | неизвестно
 теги: [место]
 создано: <% tp.date.now("YYYY-MM-DD") %>
@@ -27,21 +28,22 @@
 | **Современное название**          | `= this.современное_название`                            |
 | **Страна / регион (сейчас)**      | `= this.страна_сейчас`, `= this.регион_сейчас`           |
 | **Страна / регион (исторически)** | `= this.страна_исторически`, `= this.регион_исторически` |
-| **Координаты**                    | `= this.координаты`                                      |
+| **Координаты**                    | `= this.широта`, `= this.долгота`                        |
 | **Существует**                    | `= this.существует`                                      |
 
 ## 🗺️ Карта
 
 ```dataviewjs
-const coords = dv.current().координаты;
-if (coords && coords.length === 2) {
-  const [lat, lng] = coords;
+const lat = dv.current().широта;
+const lng = dv.current().долгота;
+
+if (lat && lng) {
   const name = dv.current().название || dv.current().file.name;
 
   dv.paragraph(`📍 **Координаты:** ${lat}, ${lng}`);
   dv.paragraph(`🔗 [OpenStreetMap](https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=14/${lat}/${lng}) · [Google Maps](https://www.google.com/maps/@${lat},${lng},14z)`);
 
-  // Leaflet карта
+    // Leaflet карта
   dv.paragraph(`
 \`\`\`leaflet
 id: map-${dv.current().file.name.replace(/[^a-zA-Zа-яА-Я0-9]/g, '-')}
@@ -52,9 +54,18 @@ marker: default, ${lat}, ${lng}, "${name}"
 \`\`\`
   `);
 } else {
-  dv.paragraph("⚠️ Укажи координаты в поле `координаты: [lat, lng]` для отображения карты");
+  dv.paragraph("⚠️ Укажи координаты в полях `широта` и `долгота`");
   dv.paragraph("💡 Как найти: Google Maps → ПКМ на точке → скопировать координаты");
 }
+```
+
+```leaflet
+id: place-map
+height: 400px
+lat: `= this.широта`
+long: `= this.долгота`
+zoom: 12
+marker: default, `= this.широта`, `= this.долгота`, `= this.название`
 ```
 
 ## 👥 Связанные персоны

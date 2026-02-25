@@ -130,7 +130,9 @@ LIMIT 10
 TABLE WITHOUT ID
   file.link AS "Место",
   тип_места AS "Тип",
-  существует AS "Сущ."
+  существует AS "Сущ.",
+  широта AS "Шир.",
+  долгота AS "Долг."
 FROM "places"
 SORT file.name ASC
 ```
