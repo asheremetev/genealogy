@@ -2,12 +2,10 @@
   "dataview",
   "templater-obsidian",
   "obsidian-git",
-  "obsidian-kanban",
   "calendar",
-  "obsidian-leaflet-plugin",
   "obsidian-icon-folder",
-  "breadcrumbs",
-  "obsidian-excalidraw-plugin",
   "obsidian-timeline",
-  "tag-wrangler"
+  "tag-wrangler",
+  "obsidian-map-view",
+  "obsidian-leaflet-plugin"
 ]

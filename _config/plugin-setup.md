@@ -1,7 +1,7 @@
 # ⚙️ Настройка плагинов и Obsidian
 
-Этот файл — полная инструкция по настройке Vault.
-Обзор структуры и соглашения см. в [README.md](../README.md).
+Полная инструкция по настройке Vault.
+Обзор структуры: [README.md](../README.md) · Схема данных: [data-schema.md](../_schema/data-schema.md)
 
 ---
 
@@ -11,8 +11,8 @@
 
 | Параметр                             | Значение      |
 | ------------------------------------ | ------------- |
-| Default location for new notes       | `Persons`     |
-| Default location for new attachments | `Media`       |
+| Default location for new notes       | `persons`     |
+| Default location for new attachments | `media`       |
 | New link format                      | Relative path |
 | Use `[[Wikilinks]]`                  | ✅ ON         |
 | Detect all file extensions           | ✅ ON         |
@@ -62,14 +62,14 @@ SQL-подобные запросы по YAML — основа всех табл
 
 | Папка      | Шаблон                 |
 | ---------- | ---------------------- |
-| `Persons`  | `_templates/person.md` |
-| `Families` | `_templates/family.md` |
-| `Places`   | `_templates/place.md`  |
-| `Sources`  | `_templates/source.md` |
-| `Stories`  | `_templates/story.md`  |
-| `Events`   | `_templates/event.md`  |
+| `persons`  | `_templates/person.md` |
+| `families` | `_templates/family.md` |
+| `places`   | `_templates/place.md`  |
+| `sources`  | `_templates/source.md` |
+| `stories`  | `_templates/story.md`  |
+| `events`   | `_templates/event.md`  |
 
-> **Как использовать:** создай файл в нужной папке — шаблон применится автоматически. Или: `Ctrl+P` → `Templater: Insert Template` → выбрать шаблон вручную.
+> **Использование:** создай файл в нужной папке — шаблон применится автоматически. Или: `Ctrl+P` → `Templater: Insert Template`.
 
 ---
 
@@ -81,17 +81,15 @@ SQL-подобные запросы по YAML — основа всех табл
 
 **Подготовка:**
 
-1. Создай приватный репозиторий на GitHub
-2. В терминале, в папке Vault:
-   ```bash
-   git init
-   git remote add origin https://github.com/YOUR_USER/YOUR_REPO.git
-   git add .
-   git commit -m "init: genealogy vault"
-   git push -u origin main
-   ```
+```bash
+git init
+git remote add origin https://github.com/YOUR_USER/YOUR_REPO.git
+git add .
+git commit -m "init: genealogy vault"
+git push -u origin main
+```
 
-**Рекомендуемые настройки:**
+**Настройки:**
 
 | Параметр                        | Значение                |
 | ------------------------------- | ----------------------- |
@@ -104,13 +102,29 @@ SQL-подобные запросы по YAML — основа всех табл
 
 ## 3. Рекомендуемые плагины
 
-### 3.1 Leaflet (карты)
+### 3.1 Leaflet (карты) ⭐
 
 Интерактивные карты с местами жизни предков.
 
 `Settings → Community Plugins → Browse → Obsidian Leaflet`
 
-Пример использования (в заметке о месте):
+**Использование в заметках мест:**
+
+В YAML указываем координаты:
+
+```yaml
+координаты: [57.7676, 40.9267] # [широта, долгота]
+```
+
+В теле заметки карта рендерится автоматически через dataviewjs (см. шаблон place.md).
+
+**Как найти координаты:**
+
+1. Открой [Google Maps](https://maps.google.com)
+2. Найди место, кликни правой кнопкой
+3. Скопируй координаты (первое число — широта, второе — долгота)
+
+**Пример блока Leaflet:**
 
 ````markdown
 ```leaflet
@@ -122,11 +136,15 @@ marker: default, 57.7676, 40.9267, "Кострома"
 ```
 ````
 
+---
+
 ### 3.2 DB Folder
 
-Открывает папку как редактируемую таблицу — удобно для массового ввода данных по персонам.
+Открывает папку как редактируемую таблицу — удобно для массового ввода.
 
 `Settings → Community Plugins → Browse → DB Folder`
+
+---
 
 ### 3.3 Breadcrumbs
 
@@ -138,6 +156,8 @@ marker: default, 57.7676, 40.9267, "Кострома"
 
 - `отец` → тип: **up**
 - `мать` → тип: **up**
+
+---
 
 ### 3.4 Другие (по желанию)
 
@@ -154,17 +174,17 @@ marker: default, 57.7676, 40.9267, "Кострома"
 
 **Filters:**
 
-- Exclude: `_templates`, `_dashboards`, `_config`
+- Exclude: `_templates`, `_dashboards`, `_config`, `_schema`
 
 **Groups (цвета по папкам):**
 
 | Путь            | Цвет          |
 | --------------- | ------------- |
-| `path:Persons`  | 🔵 синий      |
-| `path:Families` | 🟢 зелёный    |
-| `path:Places`   | 🟠 оранжевый  |
-| `path:Sources`  | 🟣 фиолетовый |
-| `path:Stories`  | 🟡 жёлтый     |
+| `path:persons`  | 🔵 синий      |
+| `path:families` | 🟢 зелёный    |
+| `path:places`   | 🟠 оранжевый  |
+| `path:sources`  | 🟣 фиолетовый |
+| `path:stories`  | 🟡 жёлтый     |
 
 ---
 
@@ -179,7 +199,7 @@ TABLE WITHOUT ID
   дата_рождения AS "Рождение",
   место_рождения AS "Место",
   достоверность AS "Достоверность"
-FROM "Persons"
+FROM "persons"
 WHERE тип = "персона"
 SORT поколение ASC, дата_рождения ASC
 ```
@@ -192,7 +212,7 @@ TABLE WITHOUT ID
   категория AS "Категория",
   архив AS "Архив",
   год_документа AS "Год"
-FROM "Sources"
+FROM "sources"
 WHERE оцифровано = "нет"
 SORT год_документа ASC
 ```
@@ -203,7 +223,7 @@ SORT год_документа ASC
 TABLE WITHOUT ID
   место_рождения AS "Место",
   length(rows) AS "Рождений"
-FROM "Persons"
+FROM "persons"
 WHERE место_рождения
 GROUP BY место_рождения
 SORT length(rows) DESC
@@ -217,17 +237,27 @@ TABLE WITHOUT ID
   file.link AS "История",
   рассказчик AS "Рассказчик",
   достоверность AS "Достоверность"
-FROM "Stories"
+FROM "stories"
 WHERE достоверность = "низкая" OR достоверность = "средняя"
 ```
 
 ### Персоны без связи с источниками
 
-```dataview
-LIST
-FROM "Persons"
-WHERE тип = "персона"
-FLATTEN file.outlinks AS outlink
-WHERE !contains(string(outlink), "Sources")
-GROUP BY file.link
+```dataviewjs
+const persons = dv.pages('"persons"').where(p => p.тип === "персона");
+const sources = dv.pages('"sources"').where(s => s.тип === "источник");
+
+const unsourced = persons.where(p => {
+  return !sources.some(s =>
+    s.персоны && s.персоны.some(per => per.path === p.file.path)
+  );
+});
+
+if (unsourced.length > 0) {
+  dv.table(["Персона", "Поколение", "Достоверность"],
+    unsourced.map(p => [p.file.link, p.поколение, p.достоверность])
+  );
+} else {
+  dv.paragraph("✅ Все персоны связаны с источниками");
+}
 ```

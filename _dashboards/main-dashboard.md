@@ -1,21 +1,24 @@
 # 🌳 Главная панель
 
-> Это главная рабочая панель. Рекомендуется закрепить её (`Pin`) или задать как стартовую заметку.
+> Закрепи эту заметку (`Pin`) или установи как стартовую.
+>
+> [Качество данных](_dashboards/data-quality.md) · [Сценарии](_config/scenarios.md) · [Схема данных](_schema/data-schema.md)
 
 ---
 
 ## 📊 Статистика
 
 ```dataviewjs
-const persons = dv.pages('"Persons"').where(p => p.тип === "персона").length;
-const families = dv.pages('"Families"').where(p => p.тип === "семья").length;
-const sources = dv.pages('"Sources"').where(p => p.тип === "источник").length;
-const places = dv.pages('"Places"').where(p => p.тип === "место").length;
-const stories = dv.pages('"Stories"').where(p => p.тип === "история").length;
+const persons = dv.pages('"persons"').where(p => p.тип === "персона").length;
+const families = dv.pages('"families"').where(p => p.тип === "семья").length;
+const sources = dv.pages('"sources"').where(p => p.тип === "источник").length;
+const places = dv.pages('"places"').where(p => p.тип === "место").length;
+const stories = dv.pages('"stories"').where(p => p.тип === "история").length;
+const events = dv.pages('"events"').where(p => p.тип === "событие").length;
 
 dv.table(
-  ["👤 Персон", "👨‍👩‍👧 Семей", "📄 Источников", "📍 Мест", "📖 Историй"],
-  [[persons, families, sources, places, stories]]
+  ["👤 Персон", "👨‍👩‍👧 Семей", "📄 Источников", "📍 Мест", "📖 Историй", "📅 Событий"],
+  [[persons, families, sources, places, stories, events]]
 );
 ```
 
@@ -30,7 +33,7 @@ TABLE WITHOUT ID
   file.link AS "Персона",
   достоверность AS "Достоверность",
   поколение AS "Поколение"
-FROM "Persons"
+FROM "persons"
 WHERE достоверность = "предположение" OR достоверность = "низкая"
 SORT поколение ASC
 LIMIT 15
@@ -40,7 +43,7 @@ LIMIT 15
 
 ```dataview
 LIST
-FROM "Persons"
+FROM "persons"
 WHERE тип = "персона" AND !дата_рождения
 LIMIT 15
 ```
@@ -51,7 +54,7 @@ LIMIT 15
 TABLE WITHOUT ID
   file.link AS "Персона",
   поколение AS "Поколение"
-FROM "Persons"
+FROM "persons"
 WHERE тип = "персона" AND (!отец AND !мать) AND поколение > 0
 SORT поколение ASC
 LIMIT 15
@@ -69,7 +72,7 @@ TABLE WITHOUT ID
   место_рождения AS "Место",
   дата_смерти AS "Смерть",
   достоверность AS "Дост."
-FROM "Persons"
+FROM "persons"
 WHERE тип = "персона"
 SORT поколение ASC, дата_рождения ASC
 ```
@@ -85,7 +88,7 @@ TABLE WITHOUT ID
   length(filter(rows, (r) => r.достоверность = "высокая")) AS "Выс. дост.",
   length(filter(rows, (r) => r.отец)) AS "Есть отец",
   length(filter(rows, (r) => r.мать)) AS "Есть мать"
-FROM "Persons"
+FROM "persons"
 WHERE тип = "персона"
 GROUP BY поколение
 SORT поколение ASC
@@ -101,22 +104,22 @@ TABLE WITHOUT ID
   категория AS "Тип",
   год_документа AS "Год",
   оцифровано AS "Оцифр."
-FROM "Sources"
-SORT создано DESC
+FROM "sources"
+SORT file.cday DESC
 LIMIT 10
 ```
 
-### Требуют оцифровки / запроса в архив
+### Требуют оцифровки
 
 ```dataview
 TABLE WITHOUT ID
   file.link AS "Документ",
   архив AS "Архив",
   фонд AS "Фонд"
-FROM "Sources"
-WHERE (оцифровано = "нет" OR оцифровано = "частично")
-  AND (!ссылка_онлайн OR ссылка_онлайн = "")
+FROM "sources"
+WHERE оцифровано = "нет" OR оцифровано = "частично"
 SORT год_документа ASC
+LIMIT 10
 ```
 
 ---
@@ -128,7 +131,7 @@ TABLE WITHOUT ID
   file.link AS "Место",
   тип_места AS "Тип",
   существует AS "Сущ."
-FROM "Places"
+FROM "places"
 SORT file.name ASC
 ```
 
@@ -138,7 +141,7 @@ SORT file.name ASC
 
 ```dataview
 TASK
-FROM "Persons" OR "Sources" OR "Places" OR "Reports"
+FROM "persons" OR "sources" OR "places" OR "reports"
 WHERE !completed
 LIMIT 25
 ```
@@ -152,7 +155,7 @@ TABLE WITHOUT ID
   file.link AS "Заметка",
   file.folder AS "Раздел",
   file.mday AS "Изменено"
-FROM "Persons" OR "Families" OR "Sources" OR "Places" OR "Stories"
+FROM "persons" OR "families" OR "sources" OR "places" OR "stories"
 SORT file.mday DESC
 LIMIT 10
 ```
@@ -161,10 +164,12 @@ LIMIT 10
 
 ## 🔗 Навигация
 
-- 📂 [Persons](Persons/) — все персоны
-- 📂 [Families](Families/) — семьи
-- 📂 [Places](Places/) — места
-- 📂 [Sources](Sources/) — источники
-- 📂 [Stories](Stories/) — истории
-- 📓 [Журнал исследования](Reports/research-log.md)
+- 📂 [persons](persons/) — все персоны
+- 📂 [families](families/) — семьи
+- 📂 [places](places/) — места
+- 📂 [sources](sources/) — источники
+- 📂 [stories](stories/) — истории
+- 📂 [events](events/) — события
+- 📓 [Журнал исследования](reports/research-log.md)
 - ⚙️ [Настройка плагинов](_config/plugin-setup.md)
+- 📘 [Сценарии](_config/scenarios.md)

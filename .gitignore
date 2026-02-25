@@ -13,9 +13,9 @@
 Thumbs.db
 desktop.ini
 
-# Node
+# Node (если используется)
 node_modules/
 
-# Большие медиа-файлы (опционально, если используете Git LFS)
-# Media/**/*.tiff
-# Media/**/*.psd
+# Большие медиа (опционально, если Git LFS)
+# media/**/*.tiff
+# media/**/*.psd
