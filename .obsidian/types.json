@@ -4,6 +4,7 @@
     "cssclasses": "multitext",
     "tags": "tags",
     "дата_рождения": "date",
-    "дата_смерти": "date"
+    "дата_смерти": "date",
+    "дата_брака": "date"
   }
 }

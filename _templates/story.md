@@ -12,9 +12,6 @@
 создано: <% tp.date.now("YYYY-MM-DD") %>
 обновлено: <% tp.date.now("YYYY-MM-DD") %>
 ---
-
-# <% tp.file.title %>
-
 > [Главная](_dashboards/main-dashboard.md) · [Схема полей](_schema/data-schema.md)
 
 | Поле              | Значение                  |
