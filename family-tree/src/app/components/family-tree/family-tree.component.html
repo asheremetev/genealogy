@@ -35,6 +35,19 @@
                             ⬇ SVG
                         }
                     </button>
+                    <button
+                        class="tree-export-btn"
+                        type="button"
+                        [disabled]="isCanvasExporting()"
+                        (click)="onExportCanvas()"
+                        title="Экспортировать всё дерево в формат Obsidian Canvas"
+                    >
+                        @if (isCanvasExporting()) {
+                            ⏳
+                        } @else {
+                            ⬇ Canvas
+                        }
+                    </button>
                 </div>
             </div>
             <app-settings-panel class="tree-settings" />

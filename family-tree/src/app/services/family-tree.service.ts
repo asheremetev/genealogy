@@ -7,15 +7,23 @@ import { type PersonData } from '../models/person.model';
 import { DEFAULT_TREE_SETTINGS, type TreeSettings } from '../models/tree-settings.model';
 import { buildCardHtml } from '../utils/card-html.util';
 
+interface TreeNodeDatum {
+    data: { id: string; data: PersonData };
+    x: number;
+    y: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class FamilyTreeService {
     private readonly _data = signal<Datum[]>([]);
     private readonly _isLoading = signal(true);
     private readonly _error = signal<string | null>(null);
+    private readonly _isCanvasExporting = signal(false);
 
     readonly data = this._data.asReadonly();
     readonly isLoading = this._isLoading.asReadonly();
     readonly error = this._error.asReadonly();
+    readonly isCanvasExporting = this._isCanvasExporting.asReadonly();
     readonly settings = signal<TreeSettings>({ ...DEFAULT_TREE_SETTINGS });
 
     readonly searchOptions = computed<SearchOption[]>(() =>
@@ -115,6 +123,130 @@ export class FamilyTreeService {
                 chart.setSingleParentEmptyCard(value as boolean);
                 break;
         }
+    }
+
+    async exportToCanvas(): Promise<void> {
+        if (!this.chart || !this.container || this._isCanvasExporting()) {
+            return;
+        }
+
+        this._isCanvasExporting.set(true);
+
+        const s = this.settings();
+        const savedAncestry = s.ancestryDepth;
+        const savedProgeny = s.progenyDepth;
+
+        try {
+            // Temporarily show all nodes (no depth limit) with instant transition
+            (this.chart as unknown as { setTransitionTime: (n: number) => void }).setTransitionTime(0);
+            this.chart.setAncestryDepth(999);
+            this.chart.setProgenyDepth(999);
+            this.chart.updateTree({ initial: false });
+
+            // Two frames: first applies D3 selection, second measures final layout
+            await new Promise<void>((r) =>
+                requestAnimationFrame(() => requestAnimationFrame(() => r())),
+            );
+
+            const canvasJson = this._buildCanvasJson();
+            this._downloadCanvas(canvasJson);
+        } finally {
+            this.chart.setAncestryDepth(savedAncestry ?? 100);
+            this.chart.setProgenyDepth(savedProgeny ?? 100);
+            (this.chart as unknown as { setTransitionTime: (n: number) => void }).setTransitionTime(500);
+            this.chart.updateTree({ initial: false });
+            this._isCanvasExporting.set(false);
+        }
+    }
+
+    private _buildCanvasJson(): object {
+        let counter = 0;
+        const genId = (): string => (++counter).toString(16).padStart(16, '0');
+
+        // Read positions and IDs from D3-bound data on each rendered card
+        const nodeById = new Map<string, { id: string; x: number; y: number }>();
+        // HTML card mode (setCardHtml) renders div.card_cont, not g.card_cont
+        const cards = this.container!.querySelectorAll<HTMLElement>('div.card_cont');
+
+        cards.forEach((card) => {
+            const d = (card as unknown as { __data__: TreeNodeDatum }).__data__;
+            if (!d?.data?.data?.firstName) return; // skip empty placeholder cards
+            nodeById.set(d.data.id, { id: genId(), x: Math.round(d.x), y: Math.round(d.y) });
+        });
+
+        const CARD_W = 240;
+        const CARD_H = 60;
+
+        const nodes = [...nodeById.entries()].map(([personId, pos]) => ({
+            id: pos.id,
+            type: 'text',
+            text: `[[${personId}]]`,
+            x: pos.x,
+            y: pos.y,
+            width: CARD_W,
+            height: CARD_H,
+        }));
+
+        const edges: object[] = [];
+        const addedEdges = new Set<string>();
+
+        this._data().forEach((datum) => {
+            const fromPos = nodeById.get(datum.id);
+            if (!fromPos) return;
+
+            // Parent → child
+            (datum.rels.children ?? []).forEach((childId) => {
+                const toPos = nodeById.get(childId);
+                if (!toPos) return;
+                const key = `${datum.id}→${childId}`;
+                if (addedEdges.has(key)) return;
+                addedEdges.add(key);
+                edges.push({
+                    id: genId(),
+                    fromNode: fromPos.id,
+                    fromSide: 'bottom',
+                    toNode: toPos.id,
+                    toSide: 'top',
+                    toEnd: 'none',
+                    styleAttributes: { pathfindingMethod: 'square' },
+                });
+            });
+
+            // Spouse ↔ (once per pair, left→right direction)
+            (datum.rels.spouses ?? []).forEach((spouseId) => {
+                const toPos = nodeById.get(spouseId);
+                if (!toPos) return;
+                const key = [datum.id, spouseId].sort().join('—');
+                if (addedEdges.has(key)) return;
+                addedEdges.add(key);
+                const leftIsFrom = fromPos.x <= toPos.x;
+                edges.push({
+                    id: genId(),
+                    fromNode: leftIsFrom ? fromPos.id : toPos.id,
+                    fromSide: 'right',
+                    toNode: leftIsFrom ? toPos.id : fromPos.id,
+                    toSide: 'left',
+                    toEnd: 'none',
+                    color: '4',
+                    styleAttributes: { pathfindingMethod: 'direct' },
+                });
+            });
+        });
+
+        return { nodes, edges };
+    }
+
+    private _downloadCanvas(data: object): void {
+        const json = JSON.stringify(data, null, '\t');
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `family-tree-${new Date().toISOString().slice(0, 10)}.canvas`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
 
     private _initChartIfReady(): void {
