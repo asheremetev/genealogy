@@ -1,0 +1,47 @@
+<div class="tree-wrapper">
+    <div class="tree-overlay">
+        @if (!isLoading()) {
+            <app-search
+                class="tree-search"
+                [options]="searchOptions()"
+                (personSelected)="onPersonSelected($event)"
+            />
+            <div class="tree-actions">
+                <button class="tree-reset" type="button" (click)="onBackToRoot()">↩ К корню</button>
+                <div class="tree-export">
+                    <button
+                        class="tree-export-btn"
+                        type="button"
+                        [disabled]="isExporting()"
+                        (click)="onExport('png')"
+                        title="Сохранить всё дерево как PNG (высокое разрешение)"
+                    >
+                        @if (isExporting()) {
+                            ⏳
+                        } @else {
+                            ⬇ PNG
+                        }
+                    </button>
+                    <button
+                        class="tree-export-btn"
+                        type="button"
+                        [disabled]="isExporting()"
+                        (click)="onExport('svg')"
+                        title="Сохранить всё дерево как SVG (векторный формат)"
+                    >
+                        @if (isExporting()) {
+                            ⏳
+                        } @else {
+                            ⬇ SVG
+                        }
+                    </button>
+                </div>
+            </div>
+            <app-settings-panel class="tree-settings" />
+        }
+        @if (error()) {
+            <div class="tree-error">{{ error() }}</div>
+        }
+    </div>
+    <div #chartContainer class="f3 tree-chart" id="FamilyChart"></div>
+</div>

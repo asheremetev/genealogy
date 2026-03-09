@@ -19,3 +19,9 @@ node_modules/
 # Большие медиа (опционально, если Git LFS)
 # media/**/*.tiff
 # media/**/*.psd
+
+
+# ai
+/.agents
+/.claude
+/.kilocode
