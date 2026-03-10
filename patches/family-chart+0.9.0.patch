@@ -1,0 +1,43 @@
+diff --git a/node_modules/family-chart/dist/family-chart.esm.js b/node_modules/family-chart/dist/family-chart.esm.js
+index 3867be0..8c4fe41 100644
+--- a/node_modules/family-chart/dist/family-chart.esm.js
++++ b/node_modules/family-chart/dist/family-chart.esm.js
+@@ -4465,6 +4465,8 @@ function linkSpouseText(svg, tree, props) {
+     const link_enter = link.enter().append("g").attr("class", "link-text");
+     const link_update = link_enter.merge(link);
+     const spouseLineX = (sp1, sp2) => {
++        if (tree.is_horizontal)
++            return sp1.x - 20;
+         if (sp1.spouse && sp1.data.data.gender === 'F')
+             return sp1.x - props.node_separation / 2;
+         else if (sp2.spouse && sp2.data.data.gender === 'M')
+@@ -4472,6 +4474,11 @@ function linkSpouseText(svg, tree, props) {
+         else
+             return Math.min(sp1.x, sp2.x) + props.node_separation / 2;
+     };
++    const spouseLineY = (sp1, sp2) => {
++        if (tree.is_horizontal)
++            return (sp1.y + sp2.y) / 2;
++        return sp1.y - 3;
++    };
+     link_exit.each(linkExit);
+     link_enter.each(linkEnter);
+     link_update.each(linkUpdate);
+@@ -4479,7 +4486,7 @@ function linkSpouseText(svg, tree, props) {
+         const [sp1, sp2] = d.nodes;
+         const text_g = d3.select(this);
+         text_g
+-            .attr('transform', `translate(${spouseLineX(sp1, sp2)}, ${sp1.y - 3})`)
++            .attr('transform', `translate(${spouseLineX(sp1, sp2)}, ${spouseLineY(sp1, sp2)})`)
+             .style('opacity', 0);
+         text_g.append("text").style('font-size', '12px').style('fill', '#fff').style('text-anchor', 'middle');
+     }
+@@ -4489,7 +4496,7 @@ function linkSpouseText(svg, tree, props) {
+         const delay = props.initial ? calculateDelay(tree, sp1, props.transition_time) : 0;
+         text_g.select('text').text(props.linkSpouseText(sp1, sp2));
+         text_g.transition('text').duration(props.transition_time).delay(delay)
+-            .attr('transform', `translate(${spouseLineX(sp1, sp2)}, ${sp1.y - 3})`);
++            .attr('transform', `translate(${spouseLineX(sp1, sp2)}, ${spouseLineY(sp1, sp2)})`);
+         text_g.transition('text-op').duration(100).delay(delay + props.transition_time).style('opacity', 1);
+     }
+     function linkExit(d) {
