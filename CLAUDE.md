@@ -76,7 +76,7 @@ App
 
 ### Obsidian Vault Data Format
 
-Person files use Russian YAML frontmatter fields: `пол` (gender M/F), `имя`, `фамилия`, `отчество`, `дата_рождения`, `дата_смерти`, `место_рождения`, `место_смерти`, `поколение`, `жив` (alive boolean), `достоверность`, `вероисповедание`.
+Person files use Russian YAML frontmatter fields: `пол` (gender M/F), `имя`, `фамилия`, `отчество`, `дата_рождения`, `дата_смерти`, `место_рождения`, `место_смерти`, `поколение`, `жив` (alive boolean), `достоверность`, `религия`, `имя_в_источнике`, `прозвище`.
 
 Family files link parents (`отец`, `мать`) to children and encode marriage dates.
 
