@@ -1,95 +1,59 @@
-# 🌳 Genealogy Vault
+# FamilyTree
 
-Персональный генеалогический архив на базе Obsidian.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.1.
 
-## Структура
+## Development server
 
-| Папка          | Содержимое                                           |
-| -------------- | ---------------------------------------------------- |
-| `persons/`     | По одной заметке на человека                         |
-| `families/`    | Семейные единицы: пара + дети                        |
-| `places/`      | Населённые пункты (исторические и современные)       |
-| `sources/`     | Архивные документы, книги, сканы, сайты              |
-| `stories/`     | Устные истории, воспоминания, дневники               |
-| `events/`      | Значимые события (миграции, войны, и т.д.)           |
-| `reports/`     | Журнал исследования, аналитика                       |
-| `media/`       | Фотографии (`photos/`) и сканы документов (`scans/`) |
-| `_templates/`  | Шаблоны Templater                                    |
-| `_dashboards/` | Сводные панели Dataview                              |
-| `_config/`     | Инструкции по настройке                              |
-| `_schema/`     | Схема данных                                         |
+To start a local development server, run:
 
-## Соглашения
-
-### Имена файлов
-
-| Тип         | Формат                                         | Пример                                   |
-| ----------- | ---------------------------------------------- | ---------------------------------------- |
-| Персона (М) | `Фамилия Имя Отчество (год)`                   | `Иванов Пётр Сергеевич (1887).md`        |
-| Персона (Ж) | `Фамилия_при_рождении Имя Отчество (год)`      | `Петрова Анна Ивановна (1890).md`        |
-| Семья       | `Фам_мужа - Фам_жены_при_рождении (год брака)` | `Иванов - Петрова (1912).md`             |
-| Место       | `Название, Регион`                             | `Кострома, Костромская губерния.md`      |
-| Источник    | `Тип - Описание (год)`                         | `Метрическая книга - Кострома (1887).md` |
-
-> **Важно:** Для женщин в имени файла и в именах семей **всегда используется фамилия при рождении**. Это обеспечивает стабильность ссылок при любом количестве браков.
-
-### Даты в YAML
-
-| Точность       | Формат          | Пример       |
-| -------------- | --------------- | ------------ |
-| Полная дата    | `YYYY-MM-DD`    | `1887-03-15` |
-| Год и месяц    | `YYYY-MM`       | `1887-03`    |
-| Только год     | `YYYY`          | `1887`       |
-| Приблизительно | `~YYYY`         | `~1887`      |
-| Неизвестно     | оставить пустым |              |
-
-### Ссылки в YAML
-
-Всегда без пути к папке — Obsidian разрешает автоматически:
-
-```yaml
-# ✅ Правильно
-отец: "[[Иванов Сергей Николаевич (1861)]]"
-мать: "[[Петрова Мария Ивановна (1865)]]"  # Фамилия при рождении!
-место_рождения: "[[Кострома, Костромская губерния]]"
-
-# ❌ Неправильно
-отец: "[[persons/Иванов Сергей Николаевич (1861)]]"
-мать: "[[Иванова Мария Ивановна (1865)]]"  # Фамилия по мужу
+```bash
+ng serve
 ```
 
-### Поколения
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-Нумерация от пробанда (исследователя):
+## Code scaffolding
 
-| Поколение | Кто                     |
-| --------- | ----------------------- |
-| 0         | Пробанд (вы)            |
-| 1         | Родители                |
-| 2         | Бабушки и дедушки       |
-| 3         | Прабабушки и прадедушки |
-| N         | N-е колено вглубь       |
-| -1        | Дети пробанда           |
-| -2        | Внуки пробанда          |
+Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
 
-## Быстрый старт
+```bash
+ng generate component component-name
+```
 
-1. Установи и настрой плагины: [`_config/plugin-setup.md`](_config/plugin-setup.md)
-2. Открой [`_dashboards/main-dashboard.md`](_dashboards/main-dashboard.md) — главная панель
-3. Создай первую персону в `persons/` — шаблон применится автоматически
-4. Заполни YAML-поля и свяжи с местами, источниками через `[[ссылки]]`
-5. Проверяй качество данных: [`_dashboards/data-quality.md`](_dashboards/data-quality.md)
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
-## Документация
+```bash
+ng generate --help
+```
 
-- 📐 [Схема данных](_schema/data-schema.md) — справочник всех полей
-- 📘 [Сценарии](_config/scenarios.md) — пошаговые инструкции
-- ⚙️ [Настройка плагинов](_config/plugin-setup.md)
+## Building
 
-## Плагины
+To build the project run:
 
-**Обязательные:** Dataview, Templater, Obsidian Git
+```bash
+ng build
+```
 
-**Рекомендуемые:** Leaflet (карты), DB Folder (табличный ввод)
+This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-**Опциональные:** Kanban, Calendar, Excalidraw, Breadcrumbs
+## Running unit tests
+
+To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+
+```bash
+ng test
+```
+
+## Running end-to-end tests
+
+For end-to-end (e2e) testing, run:
+
+```bash
+ng e2e
+```
+
+Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Additional Resources
+
+For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

@@ -1,7 +1,7 @@
 # Obsidian workspace
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.obsidian/workspace*.json
+vault/.obsidian/workspace.json
+vault/.obsidian/workspace-mobile.json
+vault/.obsidian/workspace*.json
 
 # Корзина Obsidian
 .trash/
@@ -13,8 +13,16 @@
 Thumbs.db
 desktop.ini
 
-# Node (если используется)
+# Node
 node_modules/
+
+# Angular
+/dist
+/tmp
+/out-tsc
+/.angular/cache
+/coverage
+.sass-cache/
 
 # Большие медиа (опционально, если Git LFS)
 # media/**/*.tiff

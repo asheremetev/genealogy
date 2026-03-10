@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Angular 21 web application for visualizing family trees. Data is stored in an Obsidian vault (Markdown files with YAML frontmatter in `persons/` and `families/` directories), parsed by a Node.js script into JSON, and rendered using the `family-chart` library (D3-based).
+Angular 21 web application for visualizing family trees. Data is stored in an Obsidian vault (Markdown files with YAML frontmatter in `vault/persons/` and `vault/families/` directories), parsed by a Node.js script into JSON, and rendered using the `family-chart` library (D3-based).
 
-All source code is in [family-tree/](family-tree/).
+Angular app lives in the repository root. Obsidian vault is in [vault/](vault/).
 
 ## Commands
 
-All commands run from `family-tree/`:
+All commands run from the repository root:
 
 ```bash
 # Dev server (parses vault first, then serves on port 4200)
@@ -36,7 +36,7 @@ There is no separate lint command configured. TypeScript strict mode catches mos
 ### Data Flow
 
 ```
-persons/*.md + families/*.md (Obsidian vault, Russian YAML frontmatter)
+vault/persons/*.md + vault/families/*.md (Obsidian vault, Russian YAML frontmatter)
     ↓  scripts/parse-vault.js
 public/family-chart-data.json
     ↓  FamilyTreeService.loadData()
@@ -47,14 +47,14 @@ The vault parser runs automatically before `start` and `build`. The JSON is comm
 
 ### Key Files
 
-| File                                                                                           | Role                                                                                                      |
-| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [scripts/parse-vault.js](family-tree/scripts/parse-vault.js)                                   | Reads Obsidian `.md` files → generates `family-chart-data.json`                                           |
-| [src/app/services/family-tree.service.ts](family-tree/src/app/services/family-tree.service.ts) | Core logic: initializes family-chart, manages tree state (signals), handles person selection and settings |
-| [src/app/services/export.service.ts](family-tree/src/app/services/export.service.ts)           | PNG/SVG export via `html-to-image`, handles D3 zoom and DOM bounds                                        |
-| [src/app/utils/card-html.util.ts](family-tree/src/app/utils/card-html.util.ts)                 | Generates HTML card markup for each person node in family-chart                                           |
-| [src/app/models/person.model.ts](family-tree/src/app/models/person.model.ts)                   | `PersonData` interface and `SearchOption` type                                                            |
-| [src/app/models/tree-settings.model.ts](family-tree/src/app/models/tree-settings.model.ts)     | `TreeSettings` interface (depth, spacing, orientation, toggles)                                           |
+| File                                                                               | Role                                                                                                      |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [scripts/parse-vault.js](scripts/parse-vault.js)                                   | Reads Obsidian `.md` files → generates `family-chart-data.json`                                           |
+| [src/app/services/family-tree.service.ts](src/app/services/family-tree.service.ts) | Core logic: initializes family-chart, manages tree state (signals), handles person selection and settings |
+| [src/app/services/export.service.ts](src/app/services/export.service.ts)           | PNG/SVG export via `html-to-image`, handles D3 zoom and DOM bounds                                        |
+| [src/app/utils/card-html.util.ts](src/app/utils/card-html.util.ts)                 | Generates HTML card markup for each person node in family-chart                                           |
+| [src/app/models/person.model.ts](src/app/models/person.model.ts)                   | `PersonData` interface and `SearchOption` type                                                            |
+| [src/app/models/tree-settings.model.ts](src/app/models/tree-settings.model.ts)     | `TreeSettings` interface (depth, spacing, orientation, toggles)                                           |
 
 ### Component Tree
 
