@@ -13,9 +13,10 @@
 обновлено: <% tp.date.now("YYYY-MM-DD") %>
 ---
 
-> [Главная](_dashboards/main-dashboard.md) · [Схема полей](_schema/data-schema.md)
->
-> **Именование:** `Фамилия_мужа - Фамилия_жены_при_рождении (год_брака)`
+> [Главная](_dashboards/main-dashboard.md) · [Качество данных](_dashboards/data-quality.md) · [Схема полей](_schema/data-schema.md)
+
+> [!tip] Именование файла
+> `Фамилия_мужа - Фамилия_жены_при_рождении (год_брака)`
 
 ## 💑 Супруги
 

@@ -39,25 +39,15 @@ SORT поколение ASC
 LIMIT 15
 ```
 
-### Нет даты рождения
-
-```dataview
-LIST
-FROM "persons"
-WHERE тип = "персона" AND !дата_рождения
-LIMIT 15
-```
-
-### Нет родителей (поколение > 0)
-
-```dataview
-TABLE WITHOUT ID
-  file.link AS "Персона",
-  поколение AS "Поколение"
-FROM "persons"
-WHERE тип = "персона" AND (!отец AND !мать) AND поколение > 0
-SORT поколение ASC
-LIMIT 15
+```dataviewjs
+const persons = dv.pages('"persons"').where(p => p.тип === "персона");
+const noBirth = persons.where(p => !p.дата_рождения).length;
+const noParents = persons.where(p => p.поколение > 0 && !p.отец && !p.мать).length;
+if (noBirth > 0 || noParents > 0) {
+  dv.paragraph(`⚠️ Без даты рождения: **${noBirth}** · Без родителей (пок. > 0): **${noParents}** → [Подробнее](_dashboards/data-quality.md)`);
+} else {
+  dv.paragraph("✅ Даты рождения и родители заполнены у всех");
+}
 ```
 
 ---

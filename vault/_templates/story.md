@@ -13,7 +13,7 @@
 обновлено: <% tp.date.now("YYYY-MM-DD") %>
 ---
 
-> [Главная](_dashboards/main-dashboard.md) · [Схема полей](_schema/data-schema.md)
+> [Главная](_dashboards/main-dashboard.md) · [Качество данных](_dashboards/data-quality.md) · [Схема полей](_schema/data-schema.md)
 
 | Поле              | Значение                  |
 | ----------------- | ------------------------- |
@@ -42,9 +42,13 @@
 ## 🔗 Связанные источники
 
 ```dataview
-LIST
+TABLE WITHOUT ID
+  file.link AS "Источник",
+  категория AS "Тип",
+  год_документа AS "Год"
 FROM "sources"
-WHERE any(file.outlinks, (l) => contains(string(this.персоны), string(l)))
+WHERE any(this.персоны, (p) => contains(персоны, p))
+SORT год_документа ASC
 ```
 
 ## 💭 Комментарии исследователя

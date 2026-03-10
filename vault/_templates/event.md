@@ -15,7 +15,7 @@
 обновлено: <% tp.date.now("YYYY-MM-DD") %>
 ---
 
-> [Главная](_dashboards/main-dashboard.md) · [Схема полей](_schema/data-schema.md)
+> [Главная](_dashboards/main-dashboard.md) · [Качество данных](_dashboards/data-quality.md) · [Схема полей](_schema/data-schema.md)
 
 ## 📅 Событие
 
@@ -30,11 +30,24 @@
 
 ## 👥 Участники
 
-`= this.участники`
+```dataview
+TABLE WITHOUT ID
+  file.link AS "Персона",
+  пол AS "Пол",
+  дата_рождения AS "Рождение"
+FROM "persons"
+WHERE contains(this.участники, file.link)
+```
 
 ## 👨‍👩‍👧 Связанные семьи
 
-`= this.связанные_семьи`
+```dataview
+TABLE WITHOUT ID
+  file.link AS "Семья",
+  дата_брака AS "Дата брака"
+FROM "families"
+WHERE contains(this.связанные_семьи, file.link)
+```
 
 ## 📖 Описание
 
@@ -42,7 +55,14 @@
 
 ## 🗂️ Источники
 
-`= this.источники`
+```dataview
+TABLE WITHOUT ID
+  file.link AS "Источник",
+  категория AS "Тип",
+  год_документа AS "Год"
+FROM "sources"
+WHERE contains(this.источники, file.link)
+```
 
 ## 📝 Примечания
 

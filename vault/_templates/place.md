@@ -16,7 +16,7 @@
 обновлено: <% tp.date.now("YYYY-MM-DD") %>
 ---
 
-> [Главная](_dashboards/main-dashboard.md) · [Схема полей](_schema/data-schema.md)
+> [Главная](_dashboards/main-dashboard.md) · [Качество данных](_dashboards/data-quality.md) · [Схема полей](_schema/data-schema.md)
 
 ## 📍 Географические данные
 
@@ -84,9 +84,13 @@ SORT дата_смерти ASC
 ### Жили здесь
 
 ```dataview
-LIST
+TABLE WITHOUT ID
+  file.link AS "Персона",
+  дата_рождения AS "Рождение",
+  дата_смерти AS "Смерть"
 FROM "persons"
 WHERE contains(места_жизни, this.file.link)
+SORT дата_рождения ASC
 ```
 
 ### Венчались здесь
