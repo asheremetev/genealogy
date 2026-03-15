@@ -1,26 +1,36 @@
 import { computed, Injectable, signal } from '@angular/core';
 import type { CardHtmlClass, Chart, Datum } from 'family-chart';
 import * as f3 from 'family-chart';
-import 'family-chart/styles/family-chart.css';
 import type { SearchOption } from '../models/person.model';
 import { type PersonData } from '../models/person.model';
 import { DEFAULT_TREE_SETTINGS, type TreeSettings } from '../models/tree-settings.model';
-import { buildCardHtml } from '../utils/card-html.util';
+import { buildCardHtml, extractYear } from '../utils/card-html.util';
+
+const CHART_TRANSITION_MS = 500;
+const FULL_TREE_DEPTH = 999;
+const DEPTH_FALLBACK = 100;
+
+/** Augments the Chart type with the undocumented `setTransitionTime` method. */
+interface ChartWithTransition extends Chart {
+    setTransitionTime(ms: number): void;
+}
 
 @Injectable({ providedIn: 'root' })
 export class FamilyTreeService {
     private readonly _data = signal<Datum[]>([]);
     private readonly _isLoading = signal(true);
     private readonly _error = signal<string | null>(null);
+    private readonly _settings = signal<TreeSettings>({ ...DEFAULT_TREE_SETTINGS });
+
     readonly data = this._data.asReadonly();
     readonly isLoading = this._isLoading.asReadonly();
     readonly error = this._error.asReadonly();
-    readonly settings = signal<TreeSettings>({ ...DEFAULT_TREE_SETTINGS });
+    readonly settings = this._settings.asReadonly();
 
     readonly searchOptions = computed<SearchOption[]>(() =>
         this._data().map((d) => {
             const pd = d.data as PersonData;
-            const year = pd.birthDate ? ` (${pd.birthDate.slice(0, 4)})` : '';
+            const year = pd.birthDate ? ` (${extractYear(pd.birthDate)})` : '';
             const label =
                 [pd.lastName, pd.firstName, pd.patronymic].filter(Boolean).join(' ') + year;
             return { label: label || d.id, value: d.id };
@@ -41,7 +51,7 @@ export class FamilyTreeService {
             const data: Datum[] = await res.json();
             this._data.set(data);
             this._isLoading.set(false);
-            this._initChartIfReady();
+            this.initChartIfReady();
         } catch (e) {
             this._error.set(e instanceof Error ? e.message : 'Ошибка загрузки данных');
             this._isLoading.set(false);
@@ -50,7 +60,7 @@ export class FamilyTreeService {
 
     initChart(container: HTMLElement): void {
         this.container = container;
-        this._initChartIfReady();
+        this.initChartIfReady();
     }
 
     navigateTo(id: string): void {
@@ -69,51 +79,12 @@ export class FamilyTreeService {
     }
 
     updateSetting<K extends keyof TreeSettings>(key: K, value: TreeSettings[K]): void {
-        this.settings.update((s) => ({ ...s, [key]: value }));
+        this._settings.update((s) => ({ ...s, [key]: value }));
         if (!this.chart) {
             return;
         }
-        this._applySettingToChart(key, value);
+        this.applySettingToChart(key, value);
         this.chart.updateTree({ initial: false });
-    }
-
-    private _applySettingToChart(key: keyof TreeSettings, value: unknown): void {
-        const chart = this.chart!;
-        const cardHtml = this.cardHtml!;
-        switch (key) {
-            case 'showSiblings':
-                chart.setShowSiblingsOfMain(value as boolean);
-                break;
-            case 'hoverPathToMain':
-                if (value) {
-                    cardHtml.setOnHoverPathToMain();
-                } else {
-                    cardHtml.unsetOnHoverPathToMain();
-                }
-                break;
-            case 'miniTree':
-                cardHtml.setMiniTree(value as boolean);
-                break;
-            case 'ancestryDepth':
-                chart.setAncestryDepth((value as number | null) ?? 100);
-                break;
-            case 'progenyDepth':
-                chart.setProgenyDepth((value as number | null) ?? 100);
-                break;
-            case 'cardXSpacing':
-                chart.setCardXSpacing(value as number);
-                break;
-            case 'cardYSpacing':
-                chart.setCardYSpacing(value as number);
-                break;
-            case 'orientation':
-                if (value === 'horizontal') {
-                    chart.setOrientationHorizontal();
-                } else {
-                    chart.setOrientationVertical();
-                }
-                break;
-        }
     }
 
     /**
@@ -124,17 +95,16 @@ export class FamilyTreeService {
     async withFullTree(fn: () => Promise<void>): Promise<void> {
         if (!this.chart) return;
 
-        const s = this.settings();
+        const chart = this.chart as ChartWithTransition;
+        const s = this._settings();
         const savedAncestry = s.ancestryDepth;
         const savedProgeny = s.progenyDepth;
 
         try {
-            (this.chart as unknown as { setTransitionTime: (n: number) => void }).setTransitionTime(
-                0,
-            );
-            this.chart.setAncestryDepth(999);
-            this.chart.setProgenyDepth(999);
-            this.chart.updateTree({ initial: false });
+            chart.setTransitionTime(0);
+            chart.setAncestryDepth(FULL_TREE_DEPTH);
+            chart.setProgenyDepth(FULL_TREE_DEPTH);
+            chart.updateTree({ initial: false });
 
             await new Promise<void>((r) =>
                 requestAnimationFrame(() => requestAnimationFrame(() => r())),
@@ -142,26 +112,24 @@ export class FamilyTreeService {
 
             await fn();
         } finally {
-            this.chart.setAncestryDepth(savedAncestry ?? 100);
-            this.chart.setProgenyDepth(savedProgeny ?? 100);
-            (this.chart as unknown as { setTransitionTime: (n: number) => void }).setTransitionTime(
-                500,
-            );
-            this.chart.updateTree({ initial: false });
+            chart.setAncestryDepth(savedAncestry ?? DEPTH_FALLBACK);
+            chart.setProgenyDepth(savedProgeny ?? DEPTH_FALLBACK);
+            chart.setTransitionTime(CHART_TRANSITION_MS);
+            chart.updateTree({ initial: false });
         }
     }
 
-    private _initChartIfReady(): void {
+    private initChartIfReady(): void {
         if (this.chart || !this.container || this._data().length === 0) {
             return;
         }
-        this._initChartInternal(this.container);
+        this.createChart(this.container);
     }
 
-    private _findRootPersonId(data: Datum[]): string {
+    private findRootPersonId(data: Datum[]): string {
         const existingIds = new Set(data.map((d) => d.id));
 
-        // Персоны без родителей в нашем датасете — истинные корни дерева
+        // Persons without known parents in the dataset are true tree roots.
         const roots = data.filter(
             (d) =>
                 d.rels.parents.length === 0 || !d.rels.parents.some((pid) => existingIds.has(pid)),
@@ -169,7 +137,7 @@ export class FamilyTreeService {
 
         const candidates = roots.length > 0 ? roots : data;
 
-        // Среди корней выбираем персону с максимальным поколением (самый древний предок)
+        // Among roots, pick the person with the highest generation value (oldest ancestor).
         return candidates.reduce((best, d) => {
             const bestGen = (best.data as PersonData).generation ?? -Infinity;
             const dGen = (d.data as PersonData).generation ?? -Infinity;
@@ -177,14 +145,14 @@ export class FamilyTreeService {
         }, candidates[0]).id;
     }
 
-    private _initChartInternal(container: HTMLElement): void {
+    private createChart(container: HTMLElement): void {
         const data = this._data();
-        this.rootPersonId = this._findRootPersonId(data);
-        const s = this.settings();
+        this.rootPersonId = this.findRootPersonId(data);
+        const s = this._settings();
 
         const chart = f3
             .createChart(container, data)
-            .setTransitionTime(500)
+            .setTransitionTime(CHART_TRANSITION_MS)
             .setCardXSpacing(s.cardXSpacing)
             .setCardYSpacing(s.cardYSpacing)
             .setSingleParentEmptyCard(false)
@@ -215,21 +183,58 @@ export class FamilyTreeService {
             cardHtml.setOnHoverPathToMain();
         }
 
-        chart.setLinkSpouseText((sp1, sp2) => {
-            const d1 = sp1.data.data as PersonData;
-            const d2 = sp2.data.data as PersonData;
-            const date = d1.marriages?.[sp2.data.id] ?? d2.marriages?.[sp1.data.id] ?? '';
-            if (!date) {
-                return '';
-            }
-            const year = date.match(/^(\d{4})/)?.[1];
-            return year ?? date;
-        });
+        chart.setLinkSpouseText((sp1, sp2) => this.buildSpouseYearLabel(sp1.data, sp2.data));
 
         chart.updateMainId(this.rootPersonId);
         chart.updateTree({ initial: true });
 
         this.chart = chart;
         this.cardHtml = cardHtml;
+    }
+
+    private buildSpouseYearLabel(d1: Datum, d2: Datum): string {
+        const pd1 = d1.data as PersonData;
+        const pd2 = d2.data as PersonData;
+        const date = pd1.marriages?.[d2.id] ?? pd2.marriages?.[d1.id] ?? '';
+        return extractYear(date);
+    }
+
+    private applySettingToChart(key: keyof TreeSettings, value: unknown): void {
+        const chart = this.chart!;
+        const cardHtml = this.cardHtml!;
+        switch (key) {
+            case 'showSiblings':
+                chart.setShowSiblingsOfMain(value as boolean);
+                break;
+            case 'hoverPathToMain':
+                if (value) {
+                    cardHtml.setOnHoverPathToMain();
+                } else {
+                    cardHtml.unsetOnHoverPathToMain();
+                }
+                break;
+            case 'miniTree':
+                cardHtml.setMiniTree(value as boolean);
+                break;
+            case 'ancestryDepth':
+                chart.setAncestryDepth((value as number | null) ?? DEPTH_FALLBACK);
+                break;
+            case 'progenyDepth':
+                chart.setProgenyDepth((value as number | null) ?? DEPTH_FALLBACK);
+                break;
+            case 'cardXSpacing':
+                chart.setCardXSpacing(value as number);
+                break;
+            case 'cardYSpacing':
+                chart.setCardYSpacing(value as number);
+                break;
+            case 'orientation':
+                if (value === 'horizontal') {
+                    chart.setOrientationHorizontal();
+                } else {
+                    chart.setOrientationVertical();
+                }
+                break;
+        }
     }
 }

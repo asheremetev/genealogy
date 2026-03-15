@@ -90,7 +90,7 @@ function formatPlace(birthPlace: string, deathPlace: string): string {
     return birthPlace || deathPlace;
 }
 
-function extractYear(date: string): string {
+export function extractYear(date: string): string {
     if (!date) {
         return '';
     }
