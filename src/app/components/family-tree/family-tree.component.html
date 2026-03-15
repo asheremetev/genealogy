@@ -38,11 +38,11 @@
                     <button
                         class="tree-export-btn"
                         type="button"
-                        [disabled]="isCanvasExporting()"
-                        (click)="onExportCanvas()"
+                        [disabled]="isExporting()"
+                        (click)="onExport('canvas')"
                         title="Экспортировать всё дерево в формат Obsidian Canvas"
                     >
-                        @if (isCanvasExporting()) {
+                        @if (isExporting()) {
                             ⏳
                         } @else {
                             ⬇ Canvas

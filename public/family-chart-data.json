@@ -6,7 +6,7 @@
       "firstName": "Анастасия",
       "lastName": "Шереметьева",
       "patronymic": "Григорьевна",
-      "birthDate": "1840-01-01",
+      "birthDate": "~1840",
       "deathDate": "1898-12-19",
       "birthPlace": "д. Бровцыно",
       "deathPlace": "д. Горбово",
@@ -15,7 +15,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Шереметьев Иван Маркович (1838)": "1957-02-06"
+        "Шереметьев Иван Маркович (1838)": "1857-02-06"
       }
     },
     "rels": {
@@ -35,7 +35,7 @@
       "firstName": "Андрей",
       "lastName": "",
       "patronymic": "Иванович",
-      "birthDate": "1715-01-01",
+      "birthDate": "~1715",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "д. Горбово",
@@ -92,7 +92,7 @@
       "firstName": "Гавриил",
       "lastName": "Вавилов",
       "patronymic": "Егорович",
-      "birthDate": "1886-01-01",
+      "birthDate": "1886",
       "deathDate": "",
       "birthPlace": "Новосокольничский уезд - Псковская Губерния",
       "deathPlace": "",
@@ -149,7 +149,7 @@
       "firstName": "Мария",
       "lastName": "Вавилова",
       "patronymic": "Григорьевна",
-      "birthDate": "1891-01-01",
+      "birthDate": "1891",
       "deathDate": "",
       "birthPlace": "Новосокольничский уезд - Псковская Губерния",
       "deathPlace": "г. Санкт-Петербург",
@@ -174,7 +174,7 @@
       "firstName": "Григорий",
       "lastName": "",
       "patronymic": "Михайлович",
-      "birthDate": "1636-01-01",
+      "birthDate": "~1636",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "д. Горбово",
@@ -254,7 +254,7 @@
       "firstName": "Елена",
       "lastName": "",
       "patronymic": "Ивановна",
-      "birthDate": "1756-01-01",
+      "birthDate": "~1756",
       "deathDate": "1827-07-17",
       "birthPlace": "д. Горбово",
       "deathPlace": "д. Горбово",
@@ -263,7 +263,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Шереметьев Игнатий Кузьмич (ок. 1754)": "1778-01-01"
+        "Шереметьев Игнатий Кузьмич (ок. 1754)": "~1778"
       }
     },
     "rels": {
@@ -319,7 +319,7 @@
       "firstName": "Ефимья",
       "lastName": "Шереметьева",
       "patronymic": "Ивановна",
-      "birthDate": "1781-01-01",
+      "birthDate": "~1781",
       "deathDate": "1829-04-03",
       "birthPlace": "д.Парнева",
       "deathPlace": "д. Горбово",
@@ -380,7 +380,7 @@
       "firstName": "Иван",
       "lastName": "",
       "patronymic": "Андреевич",
-      "birthDate": "1735-01-01",
+      "birthDate": "1735",
       "deathDate": "",
       "birthPlace": "",
       "deathPlace": "",
@@ -389,7 +389,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Федора Леонтьевна (1732)": "1759-01-01"
+        "Федора Леонтьевна (1732)": "~1759"
       }
     },
     "rels": {
@@ -411,7 +411,7 @@
       "firstName": "Иван",
       "lastName": "",
       "patronymic": "Григорьевич",
-      "birthDate": "1664-01-01",
+      "birthDate": "~1664",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",
@@ -438,7 +438,7 @@
       "firstName": "Анна",
       "lastName": "Иванова",
       "patronymic": "Дмитриевна",
-      "birthDate": "1862-01-01",
+      "birthDate": "~1862",
       "deathDate": "",
       "birthPlace": "д. Головизино Ярославская губерния",
       "deathPlace": "д. Горбово",
@@ -581,7 +581,7 @@
       "firstName": "Мария",
       "lastName": "Мордвинова",
       "patronymic": "Андреевна",
-      "birthDate": "1889-01-01",
+      "birthDate": "~1889",
       "deathDate": "",
       "birthPlace": "Ярославская губерния",
       "deathPlace": "д. Горбово",
@@ -693,7 +693,7 @@
       "firstName": "Степанида",
       "lastName": "Шереметьева",
       "patronymic": "Семеновна",
-      "birthDate": "1805-01-01",
+      "birthDate": "~1805",
       "deathDate": "",
       "birthPlace": "Ярославская губерния",
       "deathPlace": "д. Горбово",
@@ -702,7 +702,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Шереметьев Марк Игнатьевич (ок. 1779)": "1837-01-01"
+        "Шереметьев Марк Игнатьевич (ок. 1779)": "1837"
       }
     },
     "rels": {
@@ -723,7 +723,7 @@
       "firstName": "Федора",
       "lastName": "",
       "patronymic": "Леонтьевна",
-      "birthDate": "1732-01-01",
+      "birthDate": "1732",
       "deathDate": "",
       "birthPlace": "",
       "deathPlace": "д. Горбово",
@@ -732,7 +732,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Иван Андреевич (1735)": "1759-01-01"
+        "Иван Андреевич (1735)": "~1759"
       }
     },
     "rels": {
@@ -906,7 +906,7 @@
       "firstName": "Антон",
       "lastName": "Шереметьев",
       "patronymic": "Игнатьевич",
-      "birthDate": "1796-01-01",
+      "birthDate": "~1796",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",
@@ -1031,7 +1031,7 @@
       "firstName": "Дмитрий",
       "lastName": "Шереметьев",
       "patronymic": "Игнатьевич",
-      "birthDate": "1788-01-01",
+      "birthDate": "~1788",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",
@@ -1066,7 +1066,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Анастасия Григорьевна (ок. 1840)": "1957-02-06"
+        "Анастасия Григорьевна (ок. 1840)": "1857-02-06"
       }
     },
     "rels": {
@@ -1090,8 +1090,8 @@
       "firstName": "Игнатий",
       "lastName": "Шереметьев",
       "patronymic": "Кузьмич",
-      "birthDate": "1754-01-01",
-      "deathDate": "1821-01-01",
+      "birthDate": "~1754",
+      "deathDate": "~1821",
       "birthPlace": "Ярославская губерния",
       "deathPlace": "д. Горбово",
       "generation": 7,
@@ -1099,7 +1099,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Елена Ивановна (ок. 1756)": "1778-01-01"
+        "Елена Ивановна (ок. 1756)": "~1778"
       }
     },
     "rels": {
@@ -1159,7 +1159,7 @@
       "firstName": "Марк",
       "lastName": "Шереметьев",
       "patronymic": "Игнатьевич",
-      "birthDate": "1779-01-01",
+      "birthDate": "~1779",
       "deathDate": "1849-10-27",
       "birthPlace": "д. Горбово",
       "deathPlace": "д. Горбово",
@@ -1168,8 +1168,8 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Степанида Семеновна (ок. 1805)": "1837-01-01",
-        "Ефимья Ивановна (ок. 1781)": "1796-02-04"
+        "Ефимья Ивановна (ок. 1781)": "1796-02-04",
+        "Степанида Семеновна (ок. 1805)": "1837"
       }
     },
     "rels": {
@@ -1184,8 +1184,8 @@
         "Шереметьева Евдокия Марковна (1814)"
       ],
       "spouses": [
-        "Степанида Семеновна (ок. 1805)",
-        "Ефимья Ивановна (ок. 1781)"
+        "Ефимья Ивановна (ок. 1781)",
+        "Степанида Семеновна (ок. 1805)"
       ]
     }
   },
@@ -1222,7 +1222,7 @@
       "firstName": "Петр",
       "lastName": "Шереметьев",
       "patronymic": "Игнатьевич",
-      "birthDate": "1798-01-01",
+      "birthDate": "~1798",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",
@@ -1274,7 +1274,7 @@
       "firstName": "Симеон",
       "lastName": "Шереметьев",
       "patronymic": "Игнатьевич",
-      "birthDate": "1781-01-01",
+      "birthDate": "~1781",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",
@@ -1418,7 +1418,7 @@
       "firstName": "Анна",
       "lastName": "Шереметьева",
       "patronymic": "Марковна",
-      "birthDate": "1812-01-01",
+      "birthDate": "~1812",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",
@@ -1522,7 +1522,7 @@
       "firstName": "Евлампия",
       "lastName": "Шереметьева",
       "patronymic": "Ивановна",
-      "birthDate": "1878-01-01",
+      "birthDate": "1878",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",
@@ -1684,7 +1684,7 @@
       "firstName": "Федосья",
       "lastName": "Шереметьева",
       "patronymic": "Игнатьевна",
-      "birthDate": "1783-01-01",
+      "birthDate": "~1783",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",

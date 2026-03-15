@@ -31,7 +31,6 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit {
     protected readonly isLoading = this.treeService.isLoading;
     protected readonly error = this.treeService.error;
     protected readonly isExporting = this.exportService.isExporting;
-    protected readonly isCanvasExporting = this.treeService.isCanvasExporting;
 
     ngOnInit(): void {
         this.treeService.loadData();
@@ -51,9 +50,5 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit {
 
     protected onExport(format: ExportFormat): void {
         this.exportService.export(this.chartContainer().nativeElement, format);
-    }
-
-    protected onExportCanvas(): void {
-        this.treeService.exportToCanvas();
     }
 }
