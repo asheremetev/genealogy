@@ -10,11 +10,6 @@ const CHART_TRANSITION_MS = 500;
 const FULL_TREE_DEPTH = 999;
 const DEPTH_FALLBACK = 100;
 
-/** Augments the Chart type with the undocumented `setTransitionTime` method. */
-interface ChartWithTransition extends Chart {
-    setTransitionTime(ms: number): void;
-}
-
 @Injectable({ providedIn: 'root' })
 export class FamilyTreeService {
     private readonly _data = signal<Datum[]>([]);
@@ -95,7 +90,7 @@ export class FamilyTreeService {
     async withFullTree(fn: () => Promise<void>): Promise<void> {
         if (!this.chart) return;
 
-        const chart = this.chart as ChartWithTransition;
+        const chart = this.chart;
         const s = this._settings();
         const savedAncestry = s.ancestryDepth;
         const savedProgeny = s.progenyDepth;
