@@ -33,3 +33,8 @@ node_modules/
 /.agents
 /.claude
 /.kilocode
+
+
+
+.nx/cache
+.nx/workspace-data
