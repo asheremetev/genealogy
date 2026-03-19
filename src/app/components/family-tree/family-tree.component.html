@@ -7,7 +7,9 @@
                 (personSelected)="onPersonSelected($event)"
             />
             <div class="tree-actions">
-                <button class="tree-reset" type="button" (click)="onBackToRoot()">↩ К корню</button>
+                @if (canGoBack()) {
+                    <button class="tree-reset" type="button" (click)="onBack()">← Назад</button>
+                }
                 <div class="tree-export">
                     <button
                         class="tree-export-btn"

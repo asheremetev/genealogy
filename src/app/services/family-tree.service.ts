@@ -16,11 +16,14 @@ export class FamilyTreeService {
     private readonly _isLoading = signal(true);
     private readonly _error = signal<string | null>(null);
     private readonly _settings = signal<TreeSettings>({ ...DEFAULT_TREE_SETTINGS });
+    private readonly _currentMainId = signal<string | null>(null);
+    private readonly _historyStack = signal<string[]>([]);
 
     readonly data = this._data.asReadonly();
     readonly isLoading = this._isLoading.asReadonly();
     readonly error = this._error.asReadonly();
     readonly settings = this._settings.asReadonly();
+    readonly canGoBack = computed(() => this._historyStack().length > 0);
 
     readonly searchOptions = computed<SearchOption[]>(() =>
         this._data().map((d) => {
@@ -89,14 +92,28 @@ export class FamilyTreeService {
         if (!this.chart) {
             return;
         }
-
+        this.pushToHistory();
+        this._currentMainId.set(id);
         this.chart.updateMainId(id);
         this.chart.updateTree({ initial: false });
     }
 
-    navigateToRoot(): void {
-        if (this.rootPersonId) {
-            this.navigateTo(this.rootPersonId);
+    navigateBack(): void {
+        const stack = this._historyStack();
+        if (!this.chart || stack.length === 0) {
+            return;
+        }
+        const prevId = stack[stack.length - 1];
+        this._historyStack.update((s) => s.slice(0, -1));
+        this._currentMainId.set(prevId);
+        this.chart.updateMainId(prevId);
+        this.chart.updateTree({ initial: false });
+    }
+
+    private pushToHistory(): void {
+        const current = this._currentMainId();
+        if (current) {
+            this._historyStack.update((s) => [...s, current]);
         }
     }
 
@@ -212,6 +229,17 @@ export class FamilyTreeService {
 
         chart.setLinkSpouseText((sp1, sp2) => this.buildSpouseYearLabel(sp1.data, sp2.data));
 
+        cardHtml.setOnCardClick((_e: MouseEvent, d: { data: Datum }) => {
+            const newId = d.data.id;
+            if (newId !== this._currentMainId()) {
+                this.pushToHistory();
+                this._currentMainId.set(newId);
+                this.chart!.updateMainId(newId);
+                this.chart!.updateTree({ initial: false });
+            }
+        });
+
+        this._currentMainId.set(this.rootPersonId);
         chart.updateMainId(this.rootPersonId);
         chart.updateTree({ initial: true });
 

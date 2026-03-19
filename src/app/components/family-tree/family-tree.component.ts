@@ -31,6 +31,7 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit {
     protected readonly isLoading = this.treeService.isLoading;
     protected readonly error = this.treeService.error;
     protected readonly isExporting = this.exportService.isExporting;
+    protected readonly canGoBack = this.treeService.canGoBack;
 
     ngOnInit(): void {
         this.treeService.loadData();
@@ -44,8 +45,8 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit {
         this.treeService.navigateTo(id);
     }
 
-    protected onBackToRoot(): void {
-        this.treeService.navigateToRoot();
+    protected onBack(): void {
+        this.treeService.navigateBack();
     }
 
     protected onExport(): void {
