@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { buildCanvasJson } from '../../utils/canvas-builder.util';
-import { downloadJson } from '../../utils/download.util';
-import { FamilyTreeService } from '../family-tree.service';
-import type { ExportStrategy } from './export-strategy';
+import { downloadJson } from '../utils/download.util';
+import { FamilyTreeService } from '../services/family-tree.service';
+import type { ExportStrategy } from '../services/export/export-strategy';
+import { buildCanvasJson } from './canvas-main.builder';
 
 @Injectable({ providedIn: 'root' })
 export class CanvasExportStrategy implements ExportStrategy {

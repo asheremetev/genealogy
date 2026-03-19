@@ -8,7 +8,7 @@ import {
     viewChild,
 } from '@angular/core';
 import 'family-chart/styles/family-chart.css';
-import { ExportFormat, ExportService } from '../../services/export.service';
+import { ExportService } from '../../services/export.service';
 import { FamilyTreeService } from '../../services/family-tree.service';
 import { SearchComponent } from '../search/search.component';
 import { SettingsPanelComponent } from '../settings-panel/settings-panel.component';
@@ -48,7 +48,7 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit {
         this.treeService.navigateToRoot();
     }
 
-    protected onExport(format: ExportFormat): void {
-        this.exportService.export(this.chartContainer().nativeElement, format);
+    protected onExport(): void {
+        this.exportService.export(this.chartContainer().nativeElement);
     }
 }

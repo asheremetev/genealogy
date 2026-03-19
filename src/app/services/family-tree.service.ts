@@ -37,6 +37,33 @@ export class FamilyTreeService {
     private container: HTMLElement | null = null;
     private rootPersonId: string | null = null;
 
+    /**
+     * Declarative setting handlers. Each handler applies the setting to the chart.
+     * Returning `true` signals that the handler already called updateTree internally
+     * (e.g. with initial:true), so the caller should skip the outer updateTree call.
+     */
+    private readonly settingHandlers: {
+        [K in keyof TreeSettings]?: (value: TreeSettings[K]) => boolean | void;
+    } = {
+        showSiblings: (v) => {
+            // Requires initial:true to rebuild siblings layout correctly
+            this.chart!.setShowSiblingsOfMain(v);
+            this.chart!.updateTree({ initial: true });
+            return true;
+        },
+        hoverPathToMain: (v) =>
+            void (v ? this.cardHtml!.setOnHoverPathToMain() : this.cardHtml!.unsetOnHoverPathToMain()),
+        miniTree: (v) => void this.cardHtml!.setMiniTree(v),
+        ancestryDepth: (v) => void this.chart!.setAncestryDepth(v ?? DEPTH_FALLBACK),
+        progenyDepth: (v) => void this.chart!.setProgenyDepth(v ?? DEPTH_FALLBACK),
+        cardXSpacing: (v) => void this.chart!.setCardXSpacing(v),
+        cardYSpacing: (v) => void this.chart!.setCardYSpacing(v),
+        orientation: (v) =>
+            void (v === 'horizontal'
+                ? this.chart!.setOrientationHorizontal()
+                : this.chart!.setOrientationVertical()),
+    };
+
     async loadData(): Promise<void> {
         try {
             const res = await fetch('/family-chart-data.json');
@@ -78,8 +105,13 @@ export class FamilyTreeService {
         if (!this.chart) {
             return;
         }
-        this.applySettingToChart(key, value);
-        this.chart.updateTree({ initial: false });
+        const handler = this.settingHandlers[key];
+        const handledInternally = !!(handler as ((v: unknown) => boolean | void) | undefined)?.(
+            value,
+        );
+        if (!handledInternally) {
+            this.chart.updateTree({ initial: false });
+        }
     }
 
     /**
@@ -192,44 +224,5 @@ export class FamilyTreeService {
         const pd2 = d2.data as PersonData;
         const date = pd1.marriages?.[d2.id] ?? pd2.marriages?.[d1.id] ?? '';
         return extractYear(date);
-    }
-
-    private applySettingToChart(key: keyof TreeSettings, value: unknown): void {
-        const chart = this.chart!;
-        const cardHtml = this.cardHtml!;
-        switch (key) {
-            case 'showSiblings':
-                chart.setShowSiblingsOfMain(value as boolean);
-                break;
-            case 'hoverPathToMain':
-                if (value) {
-                    cardHtml.setOnHoverPathToMain();
-                } else {
-                    cardHtml.unsetOnHoverPathToMain();
-                }
-                break;
-            case 'miniTree':
-                cardHtml.setMiniTree(value as boolean);
-                break;
-            case 'ancestryDepth':
-                chart.setAncestryDepth((value as number | null) ?? DEPTH_FALLBACK);
-                break;
-            case 'progenyDepth':
-                chart.setProgenyDepth((value as number | null) ?? DEPTH_FALLBACK);
-                break;
-            case 'cardXSpacing':
-                chart.setCardXSpacing(value as number);
-                break;
-            case 'cardYSpacing':
-                chart.setCardYSpacing(value as number);
-                break;
-            case 'orientation':
-                if (value === 'horizontal') {
-                    chart.setOrientationHorizontal();
-                } else {
-                    chart.setOrientationVertical();
-                }
-                break;
-        }
     }
 }

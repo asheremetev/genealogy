@@ -1,10 +1,8 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { CanvasExportStrategy } from './export/canvas.export-strategy';
+import { CanvasExportStrategy } from '../canvas/canvas.export-strategy';
 import type { ExportStrategy } from './export/export-strategy';
-import { PngExportStrategy } from './export/png.export-strategy';
-import { SvgExportStrategy } from './export/svg.export-strategy';
 
-export type ExportFormat = 'png' | 'svg' | 'canvas';
+export type ExportFormat = 'canvas';
 
 @Injectable({ providedIn: 'root' })
 export class ExportService {
@@ -13,12 +11,10 @@ export class ExportService {
     readonly isExporting = this.isExportingInternal.asReadonly();
 
     private readonly strategies: Record<ExportFormat, ExportStrategy> = {
-        png: inject(PngExportStrategy),
-        svg: inject(SvgExportStrategy),
         canvas: inject(CanvasExportStrategy),
     };
 
-    async export(container: HTMLElement, format: ExportFormat): Promise<void> {
+    async export(container: HTMLElement, format: ExportFormat = 'canvas'): Promise<void> {
         if (this.isExportingInternal()) {
             return;
         }

@@ -13,33 +13,7 @@
                         class="tree-export-btn"
                         type="button"
                         [disabled]="isExporting()"
-                        (click)="onExport('png')"
-                        title="Сохранить всё дерево как PNG (высокое разрешение)"
-                    >
-                        @if (isExporting()) {
-                            ⏳
-                        } @else {
-                            ⬇ PNG
-                        }
-                    </button>
-                    <button
-                        class="tree-export-btn"
-                        type="button"
-                        [disabled]="isExporting()"
-                        (click)="onExport('svg')"
-                        title="Сохранить всё дерево как SVG (векторный формат)"
-                    >
-                        @if (isExporting()) {
-                            ⏳
-                        } @else {
-                            ⬇ SVG
-                        }
-                    </button>
-                    <button
-                        class="tree-export-btn"
-                        type="button"
-                        [disabled]="isExporting()"
-                        (click)="onExport('canvas')"
+                        (click)="onExport()"
                         title="Экспортировать всё дерево в формат Obsidian Canvas"
                     >
                         @if (isExporting()) {
