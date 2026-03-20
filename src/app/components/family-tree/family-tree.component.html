@@ -8,7 +8,7 @@
             />
             <div class="tree-actions">
                 @if (canGoBack()) {
-                    <button class="tree-reset" type="button" (click)="onBack()">← Назад</button>
+                    <button class="tree-reset" type="button" (click)="onBack()">Назад</button>
                 }
                 <div class="tree-export">
                     <button
@@ -21,7 +21,7 @@
                         @if (isExporting()) {
                             ⏳
                         } @else {
-                            ⬇ Canvas
+                            Canvas
                         }
                     </button>
                 </div>
