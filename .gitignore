@@ -34,7 +34,5 @@ node_modules/
 /.claude
 /.kilocode
 
-
-
 .nx/cache
 .nx/workspace-data
