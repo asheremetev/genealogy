@@ -2,9 +2,6 @@
   "types": {
     "aliases": "aliases",
     "cssclasses": "multitext",
-    "tags": "tags",
-    "дата_рождения": "text",
-    "дата_смерти": "date",
-    "дата_брака": "text"
+    "tags": "tags"
   }
 }
