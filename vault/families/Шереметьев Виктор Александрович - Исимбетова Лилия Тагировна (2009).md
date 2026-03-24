@@ -46,9 +46,12 @@ TABLE WITHOUT ID
   дата_смерти AS "Смерть"
 FROM "persons"
 WHERE
-  (отец = this.муж AND мать = this.жена)
-  OR (отец = this.муж AND !мать)
-  OR (мать = this.жена AND !отец)
+  (this.муж OR this.жена)
+  AND (
+    (отец = this.муж AND мать = this.жена)
+    OR (отец = this.муж AND !мать)
+    OR (мать = this.жена AND !отец)
+  )
 SORT дата_рождения ASC
 ```
 

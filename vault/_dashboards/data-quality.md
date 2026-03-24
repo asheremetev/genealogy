@@ -29,6 +29,172 @@ dv.paragraph(`**Полнота:** дата рождения ${pctBirth}% · ро
 
 ---
 
+## 🆘 Критические ошибки
+
+> Эти ошибки вызывают зависание или некорректное отображение дерева. Исправлять в первую очередь.
+
+### Персона — собственный родитель (самоссылка)
+
+```dataviewjs
+const persons = dv.pages('"persons"').where(p => p.тип === "персона");
+const errors = [];
+
+persons.forEach(p => {
+  if (p.отец && p.отец.path === p.file.path)
+    errors.push([p.file.link, "отец"]);
+  if (p.мать && p.мать.path === p.file.path)
+    errors.push([p.file.link, "мать"]);
+});
+
+if (errors.length > 0) {
+  dv.table(["Персона", "Поле"], errors);
+} else {
+  dv.paragraph("✅ Нет персон, являющихся собственным родителем");
+}
+```
+
+### Прямые циклы в цепочке родителей (A → B → A)
+
+```dataviewjs
+const persons = dv.pages('"persons"').where(p => p.тип === "персона");
+const errors = [];
+
+persons.forEach(p => {
+  ["отец", "мать"].forEach(field => {
+    if (!p[field] || typeof p[field].path !== "string") return;
+    const parent = dv.page(p[field].path);
+    if (!parent) return;
+    ["отец", "мать"].forEach(pField => {
+      if (!parent[pField] || typeof parent[pField].path !== "string") return;
+      if (parent[pField].path === p.file.path) {
+        errors.push([p.file.link, field, parent.file.link, pField]);
+      }
+    });
+  });
+});
+
+if (errors.length > 0) {
+  dv.table(["Персона", "Поле", "Родитель", "Поле у родителя"], errors);
+} else {
+  dv.paragraph("✅ Прямых циклов A→B→A не обнаружено");
+}
+```
+
+### Пустые семьи (шаблон не заполнен)
+
+```dataviewjs
+const families = dv.pages('"families"').where(f => f.тип === "семья");
+const empty = families.where(f => !f.муж && !f.жена);
+
+if (empty.length > 0) {
+  dv.table(["Семья"], empty.map(f => [f.file.link]));
+} else {
+  dv.paragraph("✅ Нет пустых семей без супругов");
+}
+```
+
+### Несоответствие типов полей
+
+Проверяет что ссылочные поля — ссылки, строковые — строки, числовые — числа. Охватывает persons, families, places.
+
+```dataviewjs
+const isLink = v => v != null && typeof v === "object" && typeof v.path === "string";
+const isString = v => typeof v === "string";
+const isNumber = v => typeof v === "number";
+const errors = [];
+
+const check = (file, field, val, expected) => {
+  if (val == null || val === "") return;
+  const actual = isLink(val) ? "ссылка" : isNumber(val) ? "число" : isString(val) ? "строка" : typeof val;
+  if (actual !== expected) errors.push([file, field, actual, expected]);
+};
+
+const checkList = (file, field, val, expected) => {
+  if (!val) return;
+  const list = Array.isArray(val) ? val : [val];
+  list.forEach((item, i) => {
+    if (item == null || item === "") return;
+    const actual = isLink(item) ? "ссылка" : isNumber(item) ? "число" : isString(item) ? "строка" : typeof item;
+    if (actual !== expected) errors.push([file, `${field}[${i}]`, actual, expected]);
+  });
+};
+
+// Персоны
+const PERSON_STR  = ["фамилия", "фамилия_при_рождении", "имя_в_источнике", "прозвище", "имя", "отчество", "профессия", "сословие", "образование", "религия"];
+const PERSON_LINK = ["отец", "мать", "место_рождения", "место_смерти", "место_крещения"];
+const PERSON_NUM  = ["поколение"];
+const PERSON_LINK_LIST = ["места_жизни"];
+
+dv.pages('"persons"').where(p => p.тип === "персона").forEach(p => {
+  PERSON_STR.forEach(f => check(p.file.link, f, p[f], "строка"));
+  PERSON_LINK.forEach(f => check(p.file.link, f, p[f], "ссылка"));
+  PERSON_NUM.forEach(f => check(p.file.link, f, p[f], "число"));
+  PERSON_LINK_LIST.forEach(f => checkList(p.file.link, f, p[f], "ссылка"));
+});
+
+// Семьи
+const FAMILY_STR  = ["статус_брака", "достоверность"];
+const FAMILY_LINK = ["муж", "жена", "место_брака", "место_венчания"];
+
+dv.pages('"families"').where(f => f.тип === "семья").forEach(f => {
+  FAMILY_STR.forEach(field => check(f.file.link, field, f[field], "строка"));
+  FAMILY_LINK.forEach(field => check(f.file.link, field, f[field], "ссылка"));
+});
+
+// Места
+const PLACE_STR = ["название", "тип_места", "современное_название", "страна_сейчас", "регион_сейчас", "страна_исторически", "регион_исторически", "период_связи", "существует"];
+const PLACE_NUM = ["широта", "долгота"];
+
+dv.pages('"places"').where(p => p.тип === "место").forEach(p => {
+  PLACE_STR.forEach(f => check(p.file.link, f, p[f], "строка"));
+  PLACE_NUM.forEach(f => check(p.file.link, f, p[f], "число"));
+});
+
+if (errors.length > 0) {
+  dv.table(["Файл", "Поле", "Текущий тип", "Ожидается"], errors);
+} else {
+  dv.paragraph("✅ Все поля соответствуют ожидаемым типам");
+}
+```
+
+### Неправильный формат приблизительных дат
+
+Допустимые форматы строк: `~YYYY`, `YYYY`, `YYYY-MM`. Ошибки: `~1720)`, `1844.01.21` и т.п.
+Корректные даты вида `YYYY-MM-DD` Dataview разбирает сам в объект — они проверяются отдельно.
+
+```dataviewjs
+const validStr = /^~?\d{4}(-\d{2})?$/;
+const errors = [];
+
+dv.pages('"persons"').where(p => p.тип === "персона").forEach(p => {
+  ["дата_рождения", "дата_смерти", "дата_крещения"].forEach(field => {
+    const val = p[field];
+    if (!val || typeof val !== "string") return;
+    const str = val.trim();
+    if (!validStr.test(str)) {
+      errors.push([p.file.link, field, str]);
+    }
+  });
+});
+
+dv.pages('"families"').where(f => f.тип === "семья").forEach(f => {
+  const val = f["дата_брака"];
+  if (!val || typeof val !== "string") return;
+  const str = val.trim();
+  if (!validStr.test(str)) {
+    errors.push([f.file.link, "дата_брака", str]);
+  }
+});
+
+if (errors.length > 0) {
+  dv.table(["Файл", "Поле", "Значение"], errors);
+} else {
+  dv.paragraph("✅ Все приблизительные даты в правильном формате");
+}
+```
+
+---
+
 ## 🔴 Критические — обязательные поля
 
 ### Персоны без даты рождения
@@ -136,14 +302,6 @@ FROM "persons"
 WHERE жив AND жив != "да" AND жив != "нет" AND жив != "неизвестно"
 ```
 
-### Оцифровано
-
-```dataview
-TABLE WITHOUT ID file.link AS "Источник", оцифровано AS "Значение"
-FROM "sources"
-WHERE оцифровано AND оцифровано != "да" AND оцифровано != "нет" AND оцифровано != "частично"
-```
-
 ### Статус брака
 
 ```dataview
@@ -234,39 +392,6 @@ WHERE вид_события
   AND вид_события != "другое"
 ```
 
-### Существует (место)
-
-```dataview
-TABLE WITHOUT ID file.link AS "Место", существует AS "Значение"
-FROM "places"
-WHERE существует AND существует != "да" AND существует != "нет" AND существует != "неизвестно"
-```
-
-### Состояние источника
-
-```dataview
-TABLE WITHOUT ID file.link AS "Источник", состояние AS "Значение"
-FROM "sources"
-WHERE состояние
-  AND состояние != "хорошее"
-  AND состояние != "повреждён"
-  AND состояние != "частично_читаем"
-  AND состояние != "копия"
-```
-
-### Источник истории
-
-```dataview
-TABLE WITHOUT ID file.link AS "История", источник_истории AS "Значение"
-FROM "stories"
-WHERE источник_истории
-  AND источник_истории != "устный_рассказ"
-  AND источник_истории != "письмо"
-  AND источник_истории != "дневник"
-  AND источник_истории != "мемуары"
-  AND источник_истории != "другое"
-```
-
 ### Тип сущности (файл в неправильной папке)
 
 ```dataviewjs
@@ -336,6 +461,27 @@ if (errors.length > 0) {
 }
 ```
 
+### Супруги одного пола
+
+```dataviewjs
+const families = dv.pages('"families"').where(f => f.тип === "семья" && f.муж && f.жена);
+const errors = [];
+
+families.forEach(f => {
+  const husband = dv.page(f.муж.path);
+  const wife = dv.page(f.жена.path);
+  if (husband && wife && husband.пол && wife.пол && husband.пол === wife.пол) {
+    errors.push([f.file.link, f.муж, husband.пол, f.жена, wife.пол]);
+  }
+});
+
+if (errors.length > 0) {
+  dv.table(["Семья", "Муж", "Пол", "Жена", "Пол"], errors);
+} else {
+  dv.paragraph("✅ Супруги всегда разного пола");
+}
+```
+
 ### Дата смерти раньше даты рождения
 
 ```dataviewjs
@@ -383,6 +529,37 @@ if (errors.length > 0) {
 }
 ```
 
+### Неправдоподобный возраст родителя при рождении ребёнка (< 12 или > 80 лет)
+
+```dataviewjs
+const persons = dv.pages('"persons"').where(p => p.тип === "персона" && p.дата_рождения);
+const errors = [];
+
+persons.forEach(child => {
+  const childBirth = dv.date(String(child.дата_рождения));
+  if (!childBirth) return;
+
+  ["отец", "мать"].forEach(field => {
+    if (!child[field]) return;
+    const parent = dv.page(child[field].path);
+    if (!parent || !parent.дата_рождения) return;
+    const parentBirth = dv.date(String(parent.дата_рождения));
+    if (!parentBirth) return;
+
+    const age = (childBirth - parentBirth) / 31557600000;
+    if (age < 12 || age > 80) {
+      errors.push([child.file.link, field, parent.file.link, Math.round(age)]);
+    }
+  });
+});
+
+if (errors.length > 0) {
+  dv.table(["Ребёнок", "Поле", "Родитель", "Лет родителю"], errors);
+} else {
+  dv.paragraph("✅ Возраст родителей при рождении детей в допустимых пределах");
+}
+```
+
 ### Битые ссылки
 
 ```dataviewjs
@@ -414,7 +591,7 @@ if (errors.length > 0) {
 }
 ```
 
-### Возможные дубликаты
+### Возможные дубликаты персон
 
 ```dataviewjs
 const persons = dv.pages('"persons"').where(p => p.тип === "персона");
@@ -441,6 +618,14 @@ if (dupes.length > 0) {
 
 ## ⚠️ Полнота данных
 
+### Семьи без даты брака
+
+```dataview
+TABLE WITHOUT ID file.link AS "Семья", муж AS "Муж", жена AS "Жена"
+FROM "families"
+WHERE тип = "семья" AND муж AND жена AND !дата_брака
+```
+
 ### Источники без привязки к персонам
 
 ```dataview
@@ -448,14 +633,6 @@ TABLE WITHOUT ID
   file.link AS "Источник", категория AS "Тип", год_документа AS "Год"
 FROM "sources"
 WHERE тип = "источник" AND (!персоны OR length(персоны) = 0)
-```
-
-### Семьи без даты брака
-
-```dataview
-TABLE WITHOUT ID file.link AS "Семья", муж AS "Муж", жена AS "Жена"
-FROM "families"
-WHERE тип = "семья" AND !дата_брака
 ```
 
 ### Места без координат
@@ -530,13 +707,12 @@ const badNames = persons.where(p => {
   const name = p.file.name;
   // Форматы:
   //   Фамилия Имя Отчество (год)       — стандарт
-  //   Имя Отчество (ок. год)            — без фамилии, приблизительный год
-  //   Имя Отчество                      — без фамилии, год неизвестен (древние предки)
+  //   Имя Отчество (~год)              — без фамилии, приблизительный год
+  //   Имя Отчество                     — без фамилии, год неизвестен
   return !name.match(/^.+\s.+\(.+\)$/) && !name.match(/^[А-ЯЁа-яё]+\s[А-ЯЁа-яё]+$/);
 });
 
 if (badNames.length > 0) {
-  dv.header(4, "⚠️ Нестандартные имена файлов");
   dv.table(["Файл", "Имя"], badNames.map(p => [p.file.link, p.file.name]));
 } else {
   dv.paragraph("✅ Все имена файлов соответствуют формату");
