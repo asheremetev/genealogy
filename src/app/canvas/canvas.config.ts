@@ -2,7 +2,7 @@ import type { CanvasBorder, CanvasTextAlign } from './canvas.types';
 
 // Must match `cardDim.w` in FamilyTreeService.
 // CARD_W + 40 === cardXSpacing in DEFAULT_TREE_SETTINGS (40 is the horizontal gap).
-export const CARD_W = 220;
+export const CARD_W = 240;
 export const CARD_H = 80;
 export const YEAR_NODE_W = 100;
 export const YEAR_NODE_H = 28;
@@ -15,7 +15,7 @@ export const GEN_LABEL_GAP = 24;
 // Layout: [event label][year badge]|axis|[year badge][event label]
 export const TIMELINE_GAP = 80;
 export const TIMELINE_EVENT_W = 300;
-export const TIMELINE_AXIS_W = 4;
+export const TIMELINE_AXIS_W = 2;
 export const TIMELINE_YEAR_W = 100;
 export const TIMELINE_EVENT_H = 28;
 export const TIMELINE_MIN_SPACING = TIMELINE_EVENT_H + 6;

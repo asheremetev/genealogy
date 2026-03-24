@@ -407,7 +407,7 @@
       "firstName": "Лев",
       "lastName": "Долгушин",
       "patronymic": "Зосимович",
-      "birthDate": "",
+      "birthDate": "~1930",
       "deathDate": "",
       "birthPlace": "",
       "deathPlace": "",
@@ -416,7 +416,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Мосина Любовь Петровна (1931)": "~961"
+        "Мосина Любовь Петровна (1931)": "~1961"
       }
     },
     "rels": {
@@ -837,14 +837,14 @@
       "patronymic": "Дмитриевна",
       "birthDate": "~1862",
       "deathDate": "",
-      "birthPlace": "д. Головизино Ярославская губерния",
+      "birthPlace": "д. Головизино",
       "deathPlace": "д. Горбово",
       "generation": 4,
       "alive": false,
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Шереметьев Максим Иванович (1864)": "1884.06.01"
+        "Шереметьев Максим Иванович (1864)": "1884-06-01"
       }
     },
     "rels": {
@@ -869,7 +869,7 @@
       "patronymic": "Кузьмич",
       "birthDate": "~1754",
       "deathDate": "~1821",
-      "birthPlace": "Ярославская губерния",
+      "birthPlace": "д. Головизино",
       "deathPlace": "д. Горбово",
       "generation": 7,
       "alive": false,
@@ -1005,7 +1005,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Шереметьев Петр Игнатьевич (~1798)": "1814.01.25"
+        "Шереметьев Петр Игнатьевич (~1798)": "1814-01-25"
       }
     },
     "rels": {
@@ -1026,7 +1026,7 @@
       "birthDate": "",
       "deathDate": "",
       "birthPlace": "г. Алатырь",
-      "deathPlace": "г.Алатырь",
+      "deathPlace": "г. Алатырь",
       "generation": 0,
       "alive": false,
       "reliability": "предположение",
@@ -1192,7 +1192,7 @@
       "deathDate": "",
       "birthPlace": "д. Головизино",
       "deathPlace": "д. Головизино",
-      "generation": null,
+      "generation": 8,
       "alive": false,
       "reliability": "предположение",
       "religion": "православие",
@@ -1399,7 +1399,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Шереметьев Василий Максимович (1885)": "1907.06.21"
+        "Шереметьев Василий Максимович (1885)": "1907-06-21"
       }
     },
     "rels": {
@@ -1421,7 +1421,7 @@
       "firstName": "Любовь",
       "lastName": "Мосина",
       "patronymic": "Петровна",
-      "birthDate": "1931.06.10",
+      "birthDate": "1931-06-10",
       "deathDate": "2021-03-03",
       "birthPlace": "г. Одинцово",
       "deathPlace": "г. Москва",
@@ -1430,7 +1430,7 @@
       "reliability": "высокая",
       "religion": "православие",
       "marriages": {
-        "Долгушин Лев Зосимович (~1930)": "~961"
+        "Долгушин Лев Зосимович (~1930)": "~1961"
       }
     },
     "rels": {
@@ -1672,9 +1672,9 @@
     "id": "Ульяна Осиповна (~1744)",
     "data": {
       "gender": "F",
-      "firstName": "[[Ульяна]]",
+      "firstName": "Ульяна",
       "lastName": "",
-      "patronymic": "[[Осиповна]]",
+      "patronymic": "Осиповна",
       "birthDate": "~1744",
       "deathDate": "",
       "birthPlace": "",
@@ -1847,7 +1847,7 @@
       "deathDate": "",
       "birthPlace": "г. Санкт-Петербург",
       "deathPlace": "",
-      "generation": -2,
+      "generation": -1,
       "alive": true,
       "reliability": "высокая",
       "religion": "православие",
@@ -2062,7 +2062,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Мордвинова Мария Андреевна (~1889)": "1907.06.21"
+        "Мордвинова Мария Андреевна (~1889)": "1907-06-21"
       }
     },
     "rels": {
@@ -2258,7 +2258,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Иванова Анна Дмитриевна (~1862)": "1884.06.01"
+        "Иванова Анна Дмитриевна (~1862)": "1884-06-01"
       }
     },
     "rels": {
@@ -2410,7 +2410,7 @@
       "reliability": "предположение",
       "religion": "православие",
       "marriages": {
-        "Ирина Михайловна (~1798)": "1814.01.25"
+        "Ирина Михайловна (~1798)": "1814-01-25"
       }
     },
     "rels": {
@@ -2542,7 +2542,7 @@
       "firstName": "Александра",
       "lastName": "Шереметьева",
       "patronymic": "Максимовна",
-      "birthDate": "04.05.1890",
+      "birthDate": "1890-05-04",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",
@@ -2809,7 +2809,7 @@
       "firstName": "Ирина",
       "lastName": "Шереметьева",
       "patronymic": "Марковна",
-      "birthDate": "09.04.1840",
+      "birthDate": "1840-04-09",
       "deathDate": "",
       "birthPlace": "д. Горбово",
       "deathPlace": "",
