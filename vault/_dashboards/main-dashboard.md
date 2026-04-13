@@ -2,7 +2,7 @@
 
 > Закрепи эту заметку (`Pin`) или установи как стартовую.
 >
-> [Качество данных](_dashboards/data-quality.md) · [Сценарии](_config/scenarios.md) · [Схема данных](_schema/data-schema.md)
+> [[data-quality|Качество данных]] · [[scenarios|Сценарии]] · [[data-schema|Схема данных]] · [[persons-list|Все персоны]]
 
 ---
 
@@ -44,44 +44,10 @@ const persons = dv.pages('"persons"').where(p => p.тип === "персона");
 const noBirth = persons.where(p => !p.дата_рождения).length;
 const noParents = persons.where(p => p.поколение > 0 && !p.отец && !p.мать).length;
 if (noBirth > 0 || noParents > 0) {
-  dv.paragraph(`⚠️ Без даты рождения: **${noBirth}** · Без родителей (пок. > 0): **${noParents}** → [Подробнее](_dashboards/data-quality.md)`);
+  dv.paragraph(`⚠️ Без даты рождения: **${noBirth}** · Без родителей (пок. > 0): **${noParents}** → [[data-quality|Подробнее]]`);
 } else {
   dv.paragraph("✅ Даты рождения и родители заполнены у всех");
 }
-```
-
----
-
-## 👥 Все персоны
-
-```dataview
-TABLE WITHOUT ID
-  file.link AS "Имя",
-  поколение AS "Пок.",
-  дата_рождения AS "Рождение",
-  место_рождения AS "Место",
-  дата_смерти AS "Смерть",
-  достоверность AS "Дост."
-FROM "persons"
-WHERE тип = "персона"
-SORT поколение ASC, дата_рождения ASC
-```
-
----
-
-## 📋 Прогресс по поколениям
-
-```dataview
-TABLE WITHOUT ID
-  поколение AS "Поколение",
-  length(rows) AS "Найдено",
-  length(filter(rows, (r) => r.достоверность = "высокая")) AS "Выс. дост.",
-  length(filter(rows, (r) => r.отец)) AS "Есть отец",
-  length(filter(rows, (r) => r.мать)) AS "Есть мать"
-FROM "persons"
-WHERE тип = "персона"
-GROUP BY поколение
-SORT поколение ASC
 ```
 
 ---
@@ -156,12 +122,9 @@ LIMIT 10
 
 ## 🔗 Навигация
 
-- 📂 [persons](persons/) — все персоны
-- 📂 [families](families/) — семьи
-- 📂 [places](places/) — места
-- 📂 [sources](sources/) — источники
-- 📂 [stories](stories/) — истории
-- 📂 [events](events/) — события
-- 📓 [Журнал исследования](reports/research-log.md)
-- ⚙️ [Настройка плагинов](_config/plugin-setup.md)
-- 📘 [Сценарии](_config/scenarios.md)
+- 👥 [[persons-list|Все персоны и поколения]]
+- 📂 [[data-quality|Качество данных]]
+- 📓 [[research-log|Журнал исследования]]
+- 📘 [[scenarios|Сценарии работы]]
+- 📐 [[data-schema|Схема данных]]
+- ⚙️ [[plugin-setup|Настройка плагинов]]
