@@ -1,5 +1,49 @@
 {
-  "mapMarkers": [],
+  "mapMarkers": [
+    {
+      "id": "places-map-all",
+      "lastAccessed": 1776116266332,
+      "markers": [
+        {
+          "id": "ID_78d97aeadbf9",
+          "type": "default",
+          "loc": [
+            55.18082804426769,
+            36.05712890625001
+          ],
+          "layer": "real",
+          "mutable": true,
+          "command": false,
+          "percent": null,
+          "description": null,
+          "minZoom": null,
+          "maxZoom": null,
+          "tooltip": "hover"
+        },
+        {
+          "id": "ID_a81ae93a3a5b",
+          "type": "default",
+          "loc": [
+            54.823507922552196,
+            26.461708545684818
+          ],
+          "layer": "real",
+          "mutable": true,
+          "command": false,
+          "percent": null,
+          "description": null,
+          "minZoom": null,
+          "maxZoom": null,
+          "tooltip": "hover"
+        }
+      ],
+      "overlays": [],
+      "shapes": [],
+      "files": [
+        "_dashboards/places-map.md"
+      ]
+    }
+  ],
   "defaultMarker": {
     "type": "default",
     "iconName": "map-marker",
