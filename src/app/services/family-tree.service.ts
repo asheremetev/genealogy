@@ -69,7 +69,7 @@ export class FamilyTreeService {
 
     async loadData(): Promise<void> {
         try {
-            const res = await fetch('/family-chart-data.json');
+            const res = await fetch('family-chart-data.json');
             if (!res.ok) {
                 throw new Error(`HTTP ${res.status}`);
             }
