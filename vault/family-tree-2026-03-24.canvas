@@ -1,7 +1,7 @@
 {
 	"nodes":[
 		{"id":"0000000000000139","type":"text","text":"","x":1758,"y":-170,"width":4,"height":2018,"color":"0"},
-		{"id":"0000000000000179","type":"group","x":-3128,"y":-350,"width":5337,"height":2330,"label":"Генеалогическое древо моей семьи","background":"backgorund-tree.png"},
+		{"id":"0000000000000179","type":"group","x":-3128,"y":-350,"width":5337,"height":2330,"label":"Генеалогическое древо моей семьи","background":"background-tree.png"},
 		{
 			"id":"0000000000000001",
 			"type":"text",

@@ -6,11 +6,11 @@
     "emojiStyle": "native",
     "iconColor": null,
     "recentlyUsedIcons": [
-      "TiSchema",
-      "LiSettings",
-      "IbDashboardOneIsFilled",
-      "TiTemplate",
-      "LiNavigation"
+      "FiArchive",
+      "LiNotebookText",
+      "TiTextScan2",
+      "IbPhoto",
+      "OcFileMedia24"
     ],
     "recentlyUsedIconsSize": 5,
     "rules": [],
@@ -36,14 +36,16 @@
   },
   "places": "LiNavigation",
   "persons": "OcPerson16",
-  "sources": "IbDocumentText",
+  "sources": "FiArchive",
   "family-tree": "IbTreeMapDown",
   "media/photos": "IbPhoto",
-  "media/scans": "LiScanText",
+  "media/scans": "TiTextScan2",
   "families": "LiHeartHandshake",
-  "media": "LiArchive",
+  "media": "OcFileMedia24",
   "_templates": "TiTemplate",
   "_dashboards": "IbDashboardOneIsFilled",
   "_config": "LiSettings",
-  "_schema": "TiSchema"
+  "_schema": "TiSchema",
+  "events": "LiLogs",
+  "stories": "LiNotebookText"
 }

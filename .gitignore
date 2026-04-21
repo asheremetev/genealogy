@@ -36,3 +36,5 @@ node_modules/
 
 .nx/cache
 .nx/workspace-data
+
+.family-chart-data.json

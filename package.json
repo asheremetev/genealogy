@@ -8,6 +8,10 @@
         "watch": "nx build --watch --configuration development",
         "test": "nx test",
         "parse-vault": "node scripts/parse-vault.js",
+        "validate-vault": "node scripts/validate-vault.mjs",
+        "validate-vault:baseline": "node scripts/validate-vault.mjs --baseline",
+        "validate-vault:update-baseline": "node scripts/validate-vault.mjs --update-baseline",
+        "normalize-vault": "node scripts/normalize-vault.mjs",
         "prepare": "npx -y husky install",
         "postinstall": "patch-package"
     },
