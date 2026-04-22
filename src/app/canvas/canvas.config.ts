@@ -65,12 +65,6 @@ export const CANVAS_CONFIG = {
     /** Timeline vertical axis color. Obsidian preset or CSS hex. */
     timelineAxisColor: '0' as string | undefined,
 
-    /** Show a title block in the top-left corner of the exported canvas. */
-    showTitle: true,
-
-    /** Title text displayed in the top-left corner. */
-    titleText: 'Генеалогическое древо моей семьи',
-
     /**
      * Markdown heading level that controls the visual font size in Obsidian.
      * 1 = largest (# H1), 2 = ## H2, … 6 = smallest.

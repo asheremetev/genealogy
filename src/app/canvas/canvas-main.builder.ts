@@ -1,11 +1,10 @@
 import type { Datum } from 'family-chart';
 import type { PersonData } from '../models/person.model';
-import { CANVAS_CONFIG, CARD_W } from './canvas.config';
 import { buildPersonCards } from './builders/cards.builder';
 import { buildEdges } from './builders/edges.builder';
 import { buildGenerationLabels } from './builders/generation-labels.builder';
 import { buildTimeline } from './builders/timeline.builder';
-import { buildTitle } from './builders/title.builder';
+import { CANVAS_CONFIG, CARD_W } from './canvas.config';
 import type { CanvasNode, TreeNodeDatum } from './canvas.types';
 
 /**
@@ -66,10 +65,6 @@ export function buildCanvasJson(container: HTMLElement, data: Datum[]): object {
         ...genLabelNodes,
         ...timelineNodes,
     ];
-
-    if (allContent.length > 0 && CANVAS_CONFIG.showTitle) {
-        allContent.push(buildTitle(allContent, genId));
-    }
 
     if (allContent.length > 0) {
         const PADDING = 100;

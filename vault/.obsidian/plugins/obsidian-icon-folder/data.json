@@ -6,11 +6,11 @@
     "emojiStyle": "native",
     "iconColor": null,
     "recentlyUsedIcons": [
-      "FiArchive",
-      "LiNotebookText",
-      "TiTextScan2",
-      "IbPhoto",
-      "OcFileMedia24"
+      "FiMap",
+      "TiSignRight",
+      "LiMap",
+      "TiMap2",
+      "LiNotebookPen"
     ],
     "recentlyUsedIconsSize": 5,
     "rules": [],
@@ -34,7 +34,7 @@
     "debugMode": false,
     "useInternalPlugins": false
   },
-  "places": "LiNavigation",
+  "places": "LiMap",
   "persons": "OcPerson16",
   "sources": "FiArchive",
   "family-tree": "IbTreeMapDown",
@@ -47,5 +47,6 @@
   "_config": "LiSettings",
   "_schema": "TiSchema",
   "events": "LiLogs",
-  "stories": "LiNotebookText"
+  "stories": "LiNotebookPen",
+  "reports": "TiFileAnalytics"
 }

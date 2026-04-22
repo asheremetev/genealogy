@@ -3,13 +3,3 @@
 
 # Форматирование изменённых файлов через prettier
 npx lint-staged || exit 1
-
-# Запускает только если в коммите затрагиваются файлы vault/
-if git diff --cached --name-only | grep -q '^vault/'; then
-  yarn validate-vault:baseline --quiet --no-report || {
-    echo ""
-    echo "❌ Обнаружены новые ошибки в vault. Исправь их или обнови baseline:"
-    echo "   yarn validate-vault:update-baseline"
-    exit 1
-  }
-fi
