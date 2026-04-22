@@ -1,131 +1,91 @@
+---
+тип: дашборд
+название: Главная
+---
+
 # 🌳 Главная панель
 
-> Закрепи эту заметку (`Pin`) или установи как стартовую.
->
-> [[data-quality|Качество данных]] · [[scenarios|Сценарии]] · [[data-schema|Схема данных]] · [[persons-list|Все персоны]]
+Закрепи эту заметку (`Pin`) или установи как стартовую.
 
 ---
 
-## 📊 Статистика
+## 🧭 Навигация
+
+| Дашборд                                 | Для чего                                         |
+| --------------------------------------- | ------------------------------------------------ |
+| 🔍 [[data-quality\|Качество данных]]    | Только ошибки: противоречия, схема, битые ссылки |
+| 🎯 [[research-progress\|Прогресс]]      | Что ещё искать: приоритеты, пустые поля, пробелы |
+| 📊 [[statistics\|Статистика]]           | Счётчики, покрытие источниками, регионы          |
+| 👥 [[persons-list\|Персоны]]            | Все персоны и прогресс по поколениям             |
+| 🗺️ [[places-map\|Карта мест]]           | Интерактивная карта                              |
+| 📓 [[research-log\|Журнал]]             | Дневник исследования                             |
+| 📘 [[scenarios\|Сценарии]]              | Типовые рабочие сценарии                         |
+| 📐 [[data-schema\|Схема данных]]        | Справочник YAML-полей                            |
+| ⚙️ [[plugin-setup\|Настройка плагинов]] | Dataview, Leaflet и др.                          |
+
+---
+
+## 📊 Коротко о объёме
 
 ```dataviewjs
-const persons = dv.pages('"persons"').where(p => p.тип === "персона").length;
-const families = dv.pages('"families"').where(p => p.тип === "семья").length;
-const sources = dv.pages('"sources"').where(p => p.тип === "источник").length;
-const places = dv.pages('"places"').where(p => p.тип === "место").length;
-const stories = dv.pages('"stories"').where(p => p.тип === "история").length;
-const events = dv.pages('"events"').where(p => p.тип === "событие").length;
+const count = (folder, type) =>
+  dv.pages(`"${folder}"`).where(p => p.тип === type).length;
 
 dv.table(
-  ["👤 Персон", "👨‍👩‍👧 Семей", "📄 Источников", "📍 Мест", "📖 Историй", "📅 Событий"],
-  [[persons, families, sources, places, stories, events]]
+  ["👤 Персон", "👨‍👩‍👧 Семей", "📅 Событий", "📄 Источников", "📍 Мест", "📖 Историй"],
+  [[
+    count("persons", "персона"),
+    count("families", "семья"),
+    count("events", "событие"),
+    count("sources", "источник"),
+    count("places", "место"),
+    count("stories", "история")
+  ]]
 );
 ```
+
+Подробнее — в [[statistics|📊 Статистике]].
 
 ---
 
 ## ⚠️ Требуют внимания
 
-### Низкая достоверность
-
-```dataview
-TABLE WITHOUT ID
-  file.link AS "Персона",
-  достоверность AS "Достоверность",
-  поколение AS "Поколение"
-FROM "persons"
-WHERE достоверность = "предположение" OR достоверность = "низкая"
-SORT поколение ASC
-LIMIT 15
-```
-
 ```dataviewjs
 const persons = dv.pages('"persons"').where(p => p.тип === "персона");
-const noBirth = persons.where(p => !p.дата_рождения).length;
-const noParents = persons.where(p => p.поколение > 0 && !p.отец && !p.мать).length;
-if (noBirth > 0 || noParents > 0) {
-  dv.paragraph(`⚠️ Без даты рождения: **${noBirth}** · Без родителей (пок. > 0): **${noParents}** → [[data-quality|Подробнее]]`);
+const places  = dv.pages('"places"').where(p => p.тип === "место");
+
+const noBirth      = persons.where(p => !p.дата_рождения).length;
+const noParents    = persons.where(p => p.поколение > 0 && !p.отец && !p.мать).length;
+const lowConf      = persons.where(p => p.достоверность === "предположение" || p.достоверность === "низкая").length;
+const placesNoCoord = places.where(p => !p.широта || !p.долгота).length;
+const highPriority = persons.where(p => p.приоритет === "высокий").length;
+
+const items = [
+  noBirth      && `Без даты рождения: **${noBirth}**`,
+  noParents    && `Без родителей (пок. > 0): **${noParents}**`,
+  lowConf      && `Низкая достоверность: **${lowConf}**`,
+  placesNoCoord && `Мест без координат: **${placesNoCoord}**`,
+  highPriority && `Высокий приоритет: **${highPriority}**`
+].filter(Boolean);
+
+if (items.length === 0) {
+  dv.paragraph("✅ Все основные показатели в норме");
 } else {
-  dv.paragraph("✅ Даты рождения и родители заполнены у всех");
+  items.forEach(i => dv.paragraph("• " + i));
+  dv.paragraph("→ подробности в [[research-progress|🎯 Прогрессе]] и [[data-quality|🔍 Качестве данных]]");
 }
 ```
 
 ---
 
-## 📄 Последние источники
-
-```dataview
-TABLE WITHOUT ID
-  file.link AS "Источник",
-  категория AS "Тип",
-  год_документа AS "Год",
-  оцифровано AS "Оцифр."
-FROM "sources"
-SORT file.cday DESC
-LIMIT 10
-```
-
-### Требуют оцифровки
-
-```dataview
-TABLE WITHOUT ID
-  file.link AS "Документ",
-  архив AS "Архив",
-  фонд AS "Фонд"
-FROM "sources"
-WHERE оцифровано = "нет" OR оцифровано = "частично"
-SORT год_документа ASC
-LIMIT 10
-```
-
----
-
-## 🗺️ Места
-
-```dataview
-TABLE WITHOUT ID
-  file.link AS "Место",
-  тип_места AS "Тип",
-  существует AS "Сущ.",
-  широта AS "Шир.",
-  долгота AS "Долг."
-FROM "places"
-SORT file.name ASC
-```
-
----
-
-## ✅ Открытые задачи
-
-```dataview
-TASK
-FROM "persons" OR "sources" OR "places" OR "reports"
-WHERE !completed
-LIMIT 25
-```
-
----
-
-## 🕐 Последние изменения
+## 🕐 Недавно изменённое
 
 ```dataview
 TABLE WITHOUT ID
   file.link AS "Заметка",
   file.folder AS "Раздел",
   file.mday AS "Изменено"
-FROM "persons" OR "families" OR "sources" OR "places" OR "stories"
+FROM "persons" OR "families" OR "sources" OR "places" OR "stories" OR "events"
 SORT file.mday DESC
-LIMIT 10
+LIMIT 8
 ```
-
----
-
-## 🔗 Навигация
-
-- 👥 [[persons-list|Все персоны и поколения]]
-- 🗺️ [[places-map|Карта всех мест]]
-- 📂 [[data-quality|Качество данных]]
-- 📓 [[research-log|Журнал исследования]]
-- 📘 [[scenarios|Сценарии работы]]
-- 📐 [[data-schema|Схема данных]]
-- ⚙️ [[plugin-setup|Настройка плагинов]]

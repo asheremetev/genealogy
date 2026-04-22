@@ -10,12 +10,12 @@
 источники: []
 описание_кратко: '' # одно предложение
 достоверность: # высокая | средняя | низкая | предположение
-теги: [событие]
+теги: []
 создано: <% tp.date.now("YYYY-MM-DD") %>
 обновлено: <% tp.date.now("YYYY-MM-DD") %>
 ---
 
-> [Главная](_dashboards/main-dashboard.md) · [Качество данных](_dashboards/data-quality.md) · [Схема полей](_schema/data-schema.md)
+> [[main-dashboard|🏠 Главная]] · [[data-quality|🔍 Качество]] · [[data-schema|📐 Схема]]
 
 ## 📅 Событие
 

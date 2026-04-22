@@ -6,11 +6,11 @@
     "emojiStyle": "native",
     "iconColor": null,
     "recentlyUsedIcons": [
+      "SiCanvas",
+      "IbDocumentText",
       "FiMap",
       "TiSignRight",
-      "LiMap",
-      "TiMap2",
-      "LiNotebookPen"
+      "LiMap"
     ],
     "recentlyUsedIconsSize": 5,
     "rules": [],
@@ -44,9 +44,9 @@
   "media": "OcFileMedia24",
   "_templates": "TiTemplate",
   "_dashboards": "IbDashboardOneIsFilled",
-  "_config": "LiSettings",
-  "_schema": "TiSchema",
   "events": "LiLogs",
   "stories": "LiNotebookPen",
-  "reports": "TiFileAnalytics"
+  "reports": "TiFileAnalytics",
+  "_docs": "IbDocumentText",
+  "media/canvas": "SiCanvas"
 }

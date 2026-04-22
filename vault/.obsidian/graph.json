@@ -1,6 +1,6 @@
 {
   "collapse-filter": false,
-  "search": "-path:family-tree -path:_demo -path:_config -path:_dashboards -path:_schema -path:_templates",
+  "search": "-path:family-tree -path:_demo -path:_docs -path:_dashboards -path:_templates",
   "showTags": false,
   "showAttachments": false,
   "hideUnresolved": false,

@@ -2,7 +2,7 @@
   "mapMarkers": [
     {
       "id": "places-map-all",
-      "lastAccessed": 1776406853658,
+      "lastAccessed": 1776863380244,
       "markers": [
         {
           "id": "ID_78d97aeadbf9",
@@ -39,9 +39,7 @@
       ],
       "overlays": [],
       "shapes": [],
-      "files": [
-        "_dashboards/places-map.md"
-      ]
+      "files": []
     }
   ],
   "defaultMarker": {
