@@ -57,13 +57,17 @@ export function buildCanvasJson(container: HTMLElement, data: Datum[]): object {
         ? buildTimeline(nodeById, personDataMap, treeMaxX, genId)
         : [];
 
-    // Node order: cards → stripes (on top of cards) → year labels → gen labels → timeline
+    // Per JSON Canvas spec: earlier in the array = lower z-index, later = on top.
+    // Desired stacking bottom → top:
+    //   bg group → gen labels → timeline (axis + events + year badges)
+    //   → cards → gender stripes → marriage-year labels
+    // This keeps stripes above cards and marriage-year nodes above the timeline axis.
     const allContent: CanvasNode[] = [
+        ...genLabelNodes,
+        ...timelineNodes,
         ...cardNodes,
         ...stripeNodes,
         ...extraNodes,
-        ...genLabelNodes,
-        ...timelineNodes,
     ];
 
     if (allContent.length > 0) {
@@ -82,7 +86,7 @@ export function buildCanvasJson(container: HTMLElement, data: Datum[]): object {
             height: maxY - minY,
         };
 
-        // Prepend so the group renders behind all nodes
+        // Prepend so the group renders behind all nodes (first element = lowest z-index).
         allContent.unshift(bgGroup as unknown as CanvasNode);
     }
 
